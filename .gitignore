@@ -1,0 +1,10 @@
+*~
+.project
+.settings
+.classpath
+bin
+target
+MGQ-Dargoth
+*.ini
+*.log
+logging.properties
