@@ -7,4 +7,5 @@ target
 MGQ-Dargoth
 *.ini
 *.log
+*.lck
 logging.properties
