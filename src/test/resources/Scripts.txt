@@ -1,0 +1,352 @@
+# -*- encoding: utf-8 -*-
+=begin
+= スキル用セリフ設定（エネミー用）
+
+    :word_1  ...セリフ情報。内容、顔倉ファイル名、顔倉インデックスの順です。
+                :word_1から:word_10の中からランダムで決定します。
+    :ct_type ...カットインタイプを以下から指定します。（現在４種）
+      :basic ... 単純表示
+      :slide ... 右からスライドイン
+      :focus ... ３層表示で原点に集まる
+      :long  ... 効果音無しで単純表示。ダメージ終了まで残る
+    :ct_pic  ...カットインで表示するピクチャ名
+    :ct_se   ...カットインの時に再生するＳＥ名
+    
+カットインタイプは表示原点を変更した関係で
+今まで通りの演出が出来なくなったので適当に追加しておきます。
+
+
+==更新履歴
+Date     Version Author Comment
+
+=end
+
+#==============================================================================
+# ■ NWConst::Enemy
+#==============================================================================
+module NWConst::Enemy
+  SKILL_WORDS = {
+    1 => { # スライム娘
+      [3500] => { # 攻撃
+        :word_1 => ["[Slime Girl]\nえいっ！", "slime_fc1", 0],
+      },
+      [3501] => { # 粘液の触手
+        :word_1 => ["[Slime Girl]\nえーい……♪", "slime_fc1", 0],
+        :word_2 => ["[Slime Girl]\nほーら……♪", "slime_fc1", 0],
+        :word_3 => ["[Slime Girl]\nいっちゃえー♪", "slime_fc1", 0],
+      },
+      [3502] => { # スライム股間責め
+        :word_1 => ["[Slime Girl]\nおちんちん、スライムでいじめちゃうよ……♪", "slime_fc1", 0],
+        :word_2 => ["[Slime Girl]\nほらぁ……♪", "slime_fc1", 0],
+        :word_3 => ["[Slime Girl]\n粘っこいスライム、気持ちいいでしょ……？", "slime_fc1", 0],
+      },
+      [3503] => { # スライム股間責め
+        :word_1 => ["[Slime Girl]\nほぉら、気持ち良くしてあげるね……♪", "slime_fc1", 0],
+        :word_2 => ["[Slime Girl]\n女の子でも、イかせてあげるからね……♪", "slime_fc1", 0],
+        :word_3 => ["[Slime Girl]\nオシッコ漏らしちゃってもいいんだよ……？", "slime_fc1", 0],
+      },
+      [3504] => { # スライム浸食
+        :word_1 => ["[Slime Girl]\nHee hee, I'm wrapping you up!", "slime_fc1", 0],
+      },
+      [3505] => { # スライムドロウ
+        :word_1 => ["[Slime Girl]\nI'll only bully you a little!", "slime_fc1", 0],
+        :word_2 => ["[Slime Girl]\nOh, does it feel good?", "slime_fc1", 0],
+        :word_3 => ["[Slime Girl]\nHow does this feel? Heehee...", "slime_fc1", 0],
+      },
+      [3506] => { # スライムヘブン
+        :word_1 => ["[Slime Girl]\nThere's no more resisting me now!\nI'll wring every last ounce out of you!", "slime_fc1", 0],
+        :word_2 => ["[Slime Girl]\nHahaha, I said I would let you taste heaven, didn't I?\nAren't you glad you got to experience something so amazing?", "slime_fc1", 0],
+        :word_3 => ["[Slime Girl]\nIt's not possible to resist anymore... just enjoy my technique!\nAre you frustrated... or happy?", "slime_fc1", 0],
+      },
+      [3507] => { # 笑う
+        :word_1 => ["[Slime Girl]\nFufufu...", "slime_fc1", 1],
+        :word_2 => ["[Slime Girl]\nFufufu...", "slime_fc1", 1],
+        :word_3 => ["[Slime Girl]\nHehe... you look delicious!", "slime_fc1", 1],
+      },
+    },
+    2 => { # バニースライム娘
+      [3500] => { # 攻撃
+        :word_1 => ["【バニースライム娘】\nうさうさっ！", "bunnyslime_fc1", 0],
+      },
+      [3501] => { # 粘液の触手
+        :word_1 => ["【バニースライム娘】\nにゅるにゅるだよー♪", "bunnyslime_fc1", 0],
+        :word_2 => ["【バニースライム娘】\nここが気持ちいいのかなー？", "bunnyslime_fc1", 0],
+        :word_3 => ["【バニースライム娘】\nあはっ、イっちゃえー♪", "bunnyslime_fc1", 0],
+      },
+      [3502] => { # スライム股間責め
+        :word_1 => ["【バニースライム娘】\nおちんちん、イかせちゃうぞー♪", "bunnyslime_fc1", 0],
+        :word_2 => ["【バニースライム娘】\nおちんちんを包んで……\nぐちゅぐちゅぐちゅっ……♪", "bunnyslime_fc1", 0],
+        :word_3 => ["【バニースライム娘】\nネバネバスライムで、おちんちんこね回してあげる♪", "bunnyslime_fc1", 0],
+      },
+      [3504] => { # スライム浸食
+        :word_1 => ["【バニースライム娘】\nスライムの中に、包み込んじゃうよ～♪", "bunnyslime_fc1", 0],
+      },
+      [3505] => { # スライムドロウ
+        :word_1 => ["【バニースライム娘】\nおちんちんグチュグチュすると……すぐにイっちゃうよねぇ？", "bunnyslime_fc1", 0],
+        :word_2 => ["【バニースライム娘】\nここをこうしてと……白いのピュッピュッピュ～♪", "bunnyslime_fc1", 0],
+        :word_3 => ["【バニースライム娘】\nおちんちんマッサージ、耐えられないよね～？", "bunnyslime_fc1", 0],
+      },
+      [3506] => { # スライムヘブン
+        :word_1 => ["【バニースライム娘】\nこの技を受けて、ガマンできるかな……？\nぐちゅぐちゅぐちゅ～♪", "bunnyslime_fc1", 0],
+        :word_2 => ["【バニースライム娘】\nあははっ、天国だよね～♪\nスライムにまみれてイっちゃえ～♪", "bunnyslime_fc1", 0],
+        :word_3 => ["【バニースライム娘】\nまだガマンするのぉ……？\nでも、もうもたないよね……♪", "bunnyslime_fc1", 0],
+      },
+    },
+    3 => { # バニースライム娘
+      [3500] => { # 攻撃
+        :word_1 => ["【バニースライム娘】\nうさうさっ！", "bunnyslime_fc1", 0],
+      },
+      [3501] => { # 粘液の触手
+        :word_1 => ["【バニースライム娘】\nにゅるにゅるだよー♪", "bunnyslime_fc1", 0],
+        :word_2 => ["【バニースライム娘】\nここが気持ちいいのかなー？", "bunnyslime_fc1", 0],
+        :word_3 => ["【バニースライム娘】\nあはっ、イっちゃえー♪", "bunnyslime_fc1", 0],
+      },
+      [3502] => { # スライム股間責め
+        :word_1 => ["【バニースライム娘】\nおちんちん、イかせちゃうぞー♪", "bunnyslime_fc1", 0],
+        :word_2 => ["【バニースライム娘】\nおちんちんを包んで……\nぐちゅぐちゅぐちゅっ……♪", "bunnyslime_fc1", 0],
+        :word_3 => ["【バニースライム娘】\nネバネバスライムで、おちんちんこね回してあげる♪", "bunnyslime_fc1", 0],
+      },
+      [3503] => { # スライム股間責め
+        :word_1 => ["【バニースライム娘】\nおまんこ、グチュグチュしてあげるね……♪", "bunnyslime_fc1", 0],
+        :word_2 => ["【バニースライム娘】\n女の子は、ココが気持ちいいんでしょ……♪", "bunnyslime_fc1", 0],
+        :word_3 => ["【バニースライム娘】\n気持ちいいところ、スライム出し入れしちゃおうか♪", "bunnyslime_fc1", 0],
+      },
+      [3504] => { # スライム浸食
+        :word_1 => ["【バニースライム娘】\nスライムの中に、包み込んじゃうよ～♪", "bunnyslime_fc1", 0],
+      },
+      [3505] => { # スライムドロウ
+        :word_1 => ["【バニースライム娘】\nおちんちんグチュグチュすると……すぐにイっちゃうよねぇ？", "bunnyslime_fc1", 0],
+        :word_2 => ["【バニースライム娘】\nここをこうしてと……白いのピュッピュッピュ～♪", "bunnyslime_fc1", 0],
+        :word_3 => ["【バニースライム娘】\nおちんちんマッサージ、耐えられないよね～？", "bunnyslime_fc1", 0],
+      },
+      [3506] => { # スライムヘブン
+        :word_1 => ["【バニースライム娘】\nこの技を受けて、ガマンできるかな……？\nぐちゅぐちゅぐちゅ～♪", "bunnyslime_fc1", 0],
+        :word_2 => ["【バニースライム娘】\nあははっ、天国だよね～♪\nスライムにまみれてイっちゃえ～♪", "bunnyslime_fc1", 0],
+        :word_3 => ["【バニースライム娘】\nまだガマンするのぉ……？\nでも、もうもたないよね……♪", "bunnyslime_fc1", 0],
+      },
+    },
+    4 => { # ナメクジ娘
+      [3509] => { # ヌルヌル攻撃
+        :word_1 => ["[Slug Girl]\nネバネバ……", "name_fc1", 0],
+      },
+      [3510] => { # 毒攻撃
+        :word_1 => ["[Slug Girl]\n毒粘液よ……", "name_fc1", 0],
+      },
+      [3511] => { # ネバネバ粘液
+        :word_1 => ["[Slug Girl]\nI'll give you a taste of my sticky mucus.", "name_fc1", 0],
+        :word_2 => ["[Slug Girl]\nMy sticky mucus... amazing, isn't it?", "name_fc1", 0],
+        :word_3 => ["[Slug Girl]\nI'll cover you with even more mucus...", "name_fc1", 0],
+      },
+      [3512] => { # ヌルヌル愛撫
+        :word_1 => ["[Slug Girl]\n...Sticky sticky...", "name_fc1", 0],
+        :word_2 => ["[Slug Girl]\nDoesn't the sticky mucus feel good?", "name_fc1", 0],
+        :word_3 => ["[Slug Girl]\nMy body is very sticky, you know?", "name_fc1", 0],
+      },
+      [3513] => { # のしかかり
+        :word_1 => ["[Slug Girl]\nI'll get on top of you...\n...with this Slug body...", "name_fc1", 0],
+      },
+      [3514] => { # ナメクジ蹂躙
+        :word_1 => ["[Slug Girl]\nIt's useless to struggle... you can't do anything but be my food now...", "name_fc1", 0],
+        :word_2 => ["[Slug Girl]\nHow is the sticky feeling...?", "name_fc1", 0],
+        :word_3 => ["[Slug Girl]\nHave more of my sticky mucus...", "name_fc1", 0],
+      },
+    },
+    5 => { # インプ
+      [3500] => { # 攻撃
+        :word_1 => ["[Imp]\nいっくよー！", "inp_fc1", 0],
+      },
+      [3516] => { # 小悪魔手コキ
+        :word_1 => ["[Imp]\nカメさんのところを、いーこいーこしてあげる♪", "inp_fc1", 0],
+        :word_2 => ["[Imp]\nI can grab it really tight with my hand...", "inp_fc1", 0],
+        :word_3 => ["[Imp]\nI'll do it just like I promised, okay?", "inp_fc1", 0],
+      },
+      [3517] => { # 小悪魔の指技
+        :word_1 => ["[Imp]\nIt likes being teased by my finger!", "inp_fc1", 0],
+        :word_2 => ["[Imp]\n女の子の気持ちイイ場所、ちゃんと分かってるもんね♪", "inp_fc1", 0],
+        :word_3 => ["[Imp]\nI'll crawl all over it with my small fingers, and make it feel reeeeally good.", "inp_fc1", 0],
+      },
+      [3518] => { # 小悪魔フェラ
+        :word_1 => ["[Imp]\nI'll lick the tip!", "inp_fc1", 0],
+        :word_2 => ["[Imp]\nI'll gently nibble on your penis...", "inp_fc1", 0],
+        :word_3 => ["[Imp]\nI'll use my mouth to give you a taste of paradise.", "inp_fc1", 0],
+      },
+      [3519] => { # 小悪魔の口技
+        :word_1 => ["[Imp]\nほぉら、おまんこ舐め回してあげるね……♪", "inp_fc1", 0],
+        :word_2 => ["[Imp]\nクリちゃん、舌でいじってあげる♪", "inp_fc1", 0],
+        :word_3 => ["[Imp]\n舌先で、ワレメをじっくり舐め回しちゃうよ～♪", "inp_fc1", 0],
+      },
+      [3520] => { # 小悪魔パイズリ
+        :word_1 => ["[Imp]\nDo you want me to try pressing them together?", "inp_fc1", 0],
+        :word_2 => ["[Imp]\nI can move them up and down, too...", "inp_fc1", 0],
+        :word_3 => ["[Imp]\nI'll keep going until you explode!", "inp_fc1", 0],
+      },
+      [3521] => { # 押し倒し
+        :word_1 => ["[Imp]\nあはっ、犯してあげるからね……♪", "inp_fc1", 0],
+      },
+      [3522] => { # 小悪魔レイプ
+        :word_1 => ["[Imp]\nそれじゃあ、犯しちゃうよ～♪", "inp_fc1", 0],
+      },
+      [3523] => { # 小悪魔の腰振り
+        :word_1 => ["[Imp]\nDid you think you'd be able to resist this?", "inp_fc1", 0],
+        :word_2 => ["[Imp]\nI'm going to ride you harder!", "inp_fc1", 0],
+        :word_3 => ["[Imp]\nNow come, right inside of a weak monster's vagina!", "inp_fc1", 0],
+      },
+      [3524] => { # ファイア
+        :word_1 => ["[Imp]\n怒れる炎、力を示せ～♪\nファイア！", "inp_fc1", 0],
+      },
+      [3525] => { # オメガブレイズ
+        :word_1 => ["[Imp]\n盟約に応じて来たれ、悪夢の業火！\n灰まで焦がせ！　オメガブレイズ！", "inp_fc1", 0],
+      },
+    },
+    6 => { # マンドラゴラ娘
+      [3500] => { # 攻撃
+        :word_1 => ["[Mandragora]\n行くわよ！", "mdg_fc1", 0],
+      },
+      [3527] => { # じっくりフェラ
+        :word_1 => ["[Mandragora]\nI'll lick you all over.", "mdg_fc1", 0],
+        :word_2 => ["[Mandragora]\nHow is it? Amazing, right?", "mdg_fc1", 0],
+        :word_3 => ["[Mandragora]\n私の舌技、クセになるわよ……", "mdg_fc1", 0],
+      },
+      [3528] => { # ふっくらパイズリ
+        :word_1 => ["[Mandragora]\nI'll wring your dick between my breasts!", "mdg_fc1", 0],
+        :word_2 => ["[Mandragora]\nLittle boys really like breasts, huh?", "mdg_fc1", 0],
+        :word_3 => ["[Mandragora]\nHow much more can you stand?", "mdg_fc1", 0],
+      },
+      [3529] => { # 魔草の髪
+        :word_1 => ["[Mandragora]\nI'll let you come with my hair!", "mdg_fc1", 0],
+        :word_2 => ["[Mandragora]\n私の髪に、恥ずかしいお汁をいっぱい撒き散らしなさい。", "mdg_fc1", 0],
+        :word_3 => ["[Mandragora]\nI can make my hair do whatever I want...", "mdg_fc1", 0],
+      },
+      [2930] => { # マンドラゴラの叫び
+        :word_1 => ["[Mandragora]\nAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH!", "mdg_fc1", 2],
+      },
+    },
+    7 => { # 犬娘
+      [3532] => { # 目潰し攻撃
+        :word_1 => ["【犬娘】\n目を狙って……たぁ！", "dog_fc1", 3],
+      },
+      [3533] => { # 引っ掻き
+        :word_1 => ["【犬娘】\n行くぞぉ！　しゃっ！", "dog_fc1", 3],
+      },
+      [3534] => { # 噛み付き
+        :word_1 => ["【犬娘】\nうー！　がぶっ！", "dog_fc1", 3],
+      },
+      [3535] => { # なめなめ
+        :word_1 => ["【犬娘】\nちんちん、ナメナメするよ……", "dog_fc1", 0],
+        :word_2 => ["【犬娘】\n先っちょナメナメ、ナメナメ……", "dog_fc1", 0],
+        :word_3 => ["【犬娘】\nオシッコの穴ナメナメすると、きもちいい……？", "dog_fc1", 0],
+      },
+      [3536] => { # なめなめ
+        :word_1 => ["【犬娘】\nココ、とってもいいニオイする……", "dog_fc1", 0],
+        :word_2 => ["【犬娘】\nワレメのところ、ナメナメするよ……", "dog_fc1", 0],
+        :word_3 => ["【犬娘】\nぺろぺろされると、気持ちいいよね？", "dog_fc1", 0],
+      },
+    },
+    8 => { # ミミズ娘
+      [3509] => { # ヌルヌル攻撃
+        :word_1 => ["[Earthworm Girl]\n私の体、ネバネバよ……！", "mimizu_fc1", 0],
+      },
+      [3511] => { # ネバネバ粘液
+        :word_1 => ["[Earthworm Girl]\nGet all sticky!", "mimizu_fc1", 0],
+        :word_2 => ["[Earthworm Girl]\nHaha, have plenty of slime...", "mimizu_fc1", 0],
+        :word_3 => ["[Earthworm Girl]\nHave even more...", "mimizu_fc1", 0],
+      },
+      [3538] => { # 巻き付く
+        :word_1 => ["[Earthworm Girl]\nI'll coil around you and squeeze!", "mimizu_fc1", 0],
+      },
+      [3539] => { # 巻き付く
+        :word_1 => ["[Earthworm Girl]\nネバネバの体で巻き付かれると、気持ちいいわよねぇ……？", "mimizu_fc1", 0],
+      },
+      [3540] => { # 締め付ける
+        :word_1 => ["[Earthworm Girl]\nYou'll never escape...", "mimizu_fc1", 0],
+        :word_2 => ["[Earthworm Girl]\nHahaha... you're writhing around!", "mimizu_fc1", 0],
+        :word_3 => ["[Earthworm Girl]\nJust lay there and enjoy it...", "mimizu_fc1", 0],
+      },
+      [3541] => { # スイートワーム
+        :word_1 => ["[Earthworm Girl]\nDoes my slimy body feel good?\nWhen you can't take it anymore, just let it out...", "mimizu_fc1", 0],
+        :word_2 => ["[Earthworm Girl]\nHaha, you're so pathetic... and you call yourself a Hero?\nI'll make you come now.", "mimizu_fc1", 0],
+        :word_3 => ["[Earthworm Girl]\nFufu... do you feel good?\nIt's already too late to try to escape...", "mimizu_fc1", 0],
+      },
+    },
+    9 => { # ゴブリン娘
+      [3543] => { # スライム潰し
+        :word_1 => ["[Goblin Girl]\n行くよっ！　スライム潰しだー！", "gob_fc1", 0],
+      },
+      [3544] => { # アースクラッシュゴブリン
+        :word_1 => ["[Goblin Girl]\n行くぞ！　大地を砕くボクの必殺技！", "gob_fc1", 0],
+      },
+      [3545] => { # サンドハリケーン
+        :word_1 => ["[Goblin Girl]\nEat this! Sand Hurricane!!", "gob_fc1", 0],
+      },
+      [3546] => { # ムリヤリ手コキ
+        :word_1 => ["[Goblin Girl]\nHahaha take this!", "gob_fc1", 0],
+        :word_2 => ["[Goblin Girl]\nHaha, your dick is so hard!", "gob_fc1", 0],
+        :word_3 => ["[Goblin Girl]\nJust let it out all over my hand.", "gob_fc1", 0],
+      },
+      [3547] => { # むぐむぐフェラ
+        :word_1 => ["[Goblin Girl]\nHaha, I'll suck it out with my mouth.", "gob_fc1", 0],
+        :word_2 => ["[Goblin Girl]\nHaha, I'll let you leak some out in my mouth.", "gob_fc1", 0],
+        :word_3 => ["[Goblin Girl]\nHehe, let me lick your tip...", "gob_fc1", 0],
+      },
+      [3548] => { # むぎゅむぎゅ素股
+        :word_1 => ["[Goblin Girl]\nHaha, is my thigh soft...?", "gob_fc1", 0],
+        :word_2 => ["[Goblin Girl]\nLet out all your sperm in my thighs...", "gob_fc1", 0],
+        :word_3 => ["[Goblin Girl]\nHehe, I can even make you come with my thighs...", "gob_fc1", 0],
+      },
+      [3549] => { # のしかかり
+        :word_1 => ["[Goblin Girl]\nYou! Just lay back!", "gob_fc1", 0],
+      },
+      [3550] => { # 小鬼の名器
+        :word_1 => ["[Goblin Girl]\nI'll make you feel amazing with my pussy...\nきゅっきゅっきゅ～って締め上げて、イかせちゃうからね……♪", "gob_fc1", 0],
+      },
+      [3551] => { # 小鬼の名器
+        :word_1 => ["[Goblin Girl]\nHaha, tiiiighter.", "gob_fc1", 0],
+        :word_2 => ["[Goblin Girl]\nHaha, crushed in my vagina...", "gob_fc1", 0],
+        :word_3 => ["[Goblin Girl]\nHaha, come, come!", "gob_fc1", 0],
+      },
+    },
+    10 => { # プチラミア
+      [3500] => { # 攻撃
+        :word_1 => ["[Tiny Lamia]\nえーいっ！", "pramia_fc1", 0],
+      },
+      [3553] => { # 蛇撃
+        :word_1 => ["[Tiny Lamia]\nあたしだって、ラミアなんだから！", "pramia_fc1", 0],
+        :word_2 => ["[Tiny Lamia]\nくらえ、尻尾の一撃！", "pramia_fc1", 0],
+        :word_3 => ["[Tiny Lamia]\nしっぽで……ばちーん！", "pramia_fc1", 0],
+      },
+      [3554] => { # プチ尻尾コキ
+        :word_1 => ["[Tiny Lamia]\nI'll squeeze you with my tail!", "pramia_fc1", 0],
+        :word_2 => ["[Tiny Lamia]\nHeehee... I'll tease you with my tail.", "pramia_fc1", 0],
+        :word_3 => ["[Tiny Lamia]\nMy tail will make you feel amazing...", "pramia_fc1", 0],
+      },
+      [3555] => { # チロチロフェラ
+        :word_1 => ["[Tiny Lamia]\nMy tongue is incredibly nimble...", "pramia_fc1", 0],
+        :word_2 => ["[Tiny Lamia]\nLet me lick you all over!", "pramia_fc1", 0],
+        :word_3 => ["[Tiny Lamia]\nHeehee... lick, lick, lick!", "pramia_fc1", 0],
+      },
+      [3556] => { # ちっぱいずり
+        :word_1 => ["[Tiny Lamia]\nI'll rub you with my gigantic chest...", "pramia_fc1", 0],
+        :word_2 => ["[Tiny Lamia]\nHeehee... I'll force you to come with my huge chest.", "pramia_fc1", 0],
+        :word_3 => ["[Tiny Lamia]\nHeehee... my boobs are really soft, you know?", "pramia_fc1", 0],
+      },
+      [3557] => { # プチロール
+        :word_1 => ["[Tiny Lamia]\n巻き付いて、いたぶってやるんだから……！", "pramia_fc1", 0],
+      },
+      [3558] => { # プチ蛇魔の姦淫
+        :word_1 => ["[Tiny Lamia]\nじゃあ、食べちゃうよ……\nあんたのチンチン、あたしの魔膣で……", "pramia_fc1", 0],
+      },
+      [3559] => { # プチ秒殺の膣圧
+        :word_1 => ["[Tiny Lamia]\nHeehee... tighter, tighter.", "pramia_fc1", 0],
+        :word_2 => ["[Tiny Lamia]\nStuck inside me... amazing, isn't it?", "pramia_fc1", 0],
+        :word_3 => ["[Tiny Lamia]\nHaha, you're leaking in me.", "pramia_fc1", 0],
+      },
+      [3560] => { # プチ秒殺の腰振り
+        :word_1 => ["[Tiny Lamia]\nLet me shake my hips for you.", "pramia_fc1", 0],
+        :word_2 => ["[Tiny Lamia]\nIf I do this, you won't be able to last.", "pramia_fc1", 0],
+        :word_3 => ["[Tiny Lamia]\nHaha... let it all out in me.", "pramia_fc1", 0],
+      },
+    },
+
+  }
+end
+
