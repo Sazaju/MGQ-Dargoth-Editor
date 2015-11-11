@@ -47,7 +47,7 @@ public class MGQMap implements TranslationMap<MGQEntry> {
 	public MGQMap(MapID id) throws IOException {
 		file = id.getFile();
 		
-		logger.info("Parsing "+file+"...");
+		logger.info("Parsing " + file + "...");
 		parsed = new Scripts();
 		parsed.setContent(FileUtils.readFileToString(file));
 		logger.info("File parsed...");
@@ -79,9 +79,11 @@ public class MGQMap implements TranslationMap<MGQEntry> {
 		entries = new LinkedList<>();
 		Map<FullSentenceID, Storage> originalsToRetrieve = new HashMap<>();
 		for (Monster monster : parsed) {
+			logger.fine("Check monster " + monster + "...");
 			for (Attack attack : monster) {
+				logger.finer("Check attack " + attack + "...");
 				for (final Sentence sentence : attack) {
-					logger.info("Building entry...");
+					logger.finest("Check sentence " + sentence + "...");
 					Storage translationStorage = new Storage() {
 
 						@Override
@@ -116,12 +118,12 @@ public class MGQMap implements TranslationMap<MGQEntry> {
 							sentence), originalStorage);
 					MGQEntry entry = new MGQEntry(originalStorage,
 							translationStorage, saver);
-					logger.info("Entry: " + entry);
 					entries.add(entry);
+					logger.finest("Entry added: " + entry);
 				}
 			}
 		}
-		logger.info("Entries built...");
+		logger.info("Entries built: " + entries.size());
 	}
 
 	@Override
