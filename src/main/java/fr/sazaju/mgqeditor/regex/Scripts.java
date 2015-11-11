@@ -14,10 +14,10 @@ import fr.vergne.parsing.layer.util.SeparatedLoop;
 public class Scripts extends Suite implements Iterable<Monster> {
 
 	public Scripts() {
-		super(new Formula("[\\s\\S]*?"), new Formula("[A-Z_]++ = \\{"), new Blank(),
-				new SeparatedLoop<Monster, Blank>(Quantifier.POSSESSIVE,
-						new Monster(), new Blank()), new Blank(), new Formula(
-						"\\}[\\s\\S]*+"));
+		super(new Formula("[\\s\\S]*?"), new Formula("[A-Z_]++ = \\{"),
+				new Blank(), new SeparatedLoop<Monster, Blank>(
+						Quantifier.POSSESSIVE, new Monster(), new Blank()),
+				new Blank(), new Formula("\\}[\\s\\S]*+"));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -101,9 +101,9 @@ public class Scripts extends Suite implements Iterable<Monster> {
 
 	public static class Attack extends Suite implements Iterable<Sentence> {
 		public Attack() {
-			super(new AttackIDs(), new Formula(" => \\{ # ?+"),
-					new Formula("[^\n]*+"), new Blank(), new Option<Suite>(
-							new Suite(new Info(), new Blank())),
+			super(new AttackIDs(), new Formula(" => \\{ # ?+"), new Formula(
+					"[^\n]*+"), new Blank(), new Option<Suite>(new Suite(
+					new Info(), new Blank())),
 					new SeparatedLoop<Sentence, Blank>(Quantifier.POSSESSIVE,
 							new Sentence(), new Blank()), new Blank(),
 					new Formula("\\},"));
