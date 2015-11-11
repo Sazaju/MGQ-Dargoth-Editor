@@ -31,12 +31,7 @@ public class MGQProject implements TranslationProject<MGQEntry, MapID, MGQMap> {
 		// TODO consider all the files
 		File scriptDirectory = new File(directory, "Scripts");
 		for (File file : scriptDirectory.listFiles()) {
-			if (file.length() == 0) {
-				// empty file, ignore it
-			} else if (file
-					.getName()
-					.matches(
-							"Script_0+(182|183|185|187|188|189|190|191|193|194|195|196|197)_[^.]*.txt")) {
+			if (file.getName().matches("Script_0+(197)_[^.]*.txt")) {
 				files.add(new MapID(file));
 			} else {
 				// not a file to translate
