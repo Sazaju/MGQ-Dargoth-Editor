@@ -12,25 +12,25 @@ public class MGQEntry implements TranslationEntry<MGQMetadata> {
 
 	private static final Logger logger = Logger.getLogger(MGQEntry.class
 			.getName());
-	private final String original;
+	private final Storage originalStorage;
 	private String translation;
 	private final Collection<TranslationListener> listeners = new HashSet<>();
 	private final Storage translationStorage;
 	private final Saver saver;
 	private final MGQMetadata metadata;
 
-	public MGQEntry(String original, String translation,
-			Storage translationStorage, Saver saver) {
-		this.original = original;
-		this.translation = translation;
+	public MGQEntry(Storage originalStorage, Storage translationStorage,
+			Saver saver) {
+		this.originalStorage = originalStorage;
 		this.translationStorage = translationStorage;
+		this.translation = translationStorage.read();
 		this.saver = saver;
 		this.metadata = new MGQMetadata();
 	}
 
 	@Override
 	public String getOriginalContent() {
-		return original;
+		return originalStorage.read();
 	}
 
 	@Override
@@ -110,6 +110,6 @@ public class MGQEntry implements TranslationEntry<MGQMetadata> {
 
 	@Override
 	public String toString() {
-		return original + " [=>] " + translation;
+		return originalStorage + " [=>] " + translation;
 	}
 }

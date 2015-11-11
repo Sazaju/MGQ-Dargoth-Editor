@@ -5,14 +5,16 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Level;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import fr.sazaju.mgqeditor.regex.Scripts;
 import fr.sazaju.mgqeditor.regex.Scripts.Attack;
+import fr.sazaju.mgqeditor.regex.Scripts.FullSentenceID;
 import fr.sazaju.mgqeditor.regex.Scripts.Monster;
 import fr.sazaju.mgqeditor.regex.Scripts.Sentence;
 import fr.sazaju.mgqeditor.util.Saver;
@@ -75,12 +77,11 @@ public class MGQMap implements TranslationMap<MGQEntry> {
 
 		logger.info("Building entries...");
 		entries = new LinkedList<>();
+		Map<FullSentenceID, Storage> originalsToRetrieve = new HashMap<>();
 		for (Monster monster : parsed) {
 			for (Attack attack : monster) {
 				for (final Sentence sentence : attack) {
 					logger.info("Building entry...");
-					String original = "<not provided>";
-					String translation = sentence.getMessage();
 					Storage translationStorage = new Storage() {
 
 						@Override
@@ -96,7 +97,24 @@ public class MGQMap implements TranslationMap<MGQEntry> {
 							sentence.setMessage(content);
 						}
 					};
-					MGQEntry entry = new MGQEntry(original, translation,
+					Storage originalStorage = new Storage() {
+
+						private String original = "<not provided>";
+
+						@Override
+						public String read() {
+							return formatter.switchForth(original);
+						}
+
+						@Override
+						public void write(String content) {
+							content = formatter.switchBack(content);
+							original = content;
+						}
+					};
+					originalsToRetrieve.put(new FullSentenceID(monster, attack,
+							sentence), originalStorage);
+					MGQEntry entry = new MGQEntry(originalStorage,
 							translationStorage, saver);
 					logger.info("Entry: " + entry);
 					entries.add(entry);
