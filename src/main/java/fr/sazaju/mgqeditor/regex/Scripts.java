@@ -68,6 +68,11 @@ public class Scripts extends Suite implements Iterable<Monster> {
 			}
 			return clone;
 		}
+
+		@Override
+		public String toString() {
+			return getMonsterID() + " (" + getMonsterComment() + ")";
+		}
 	}
 
 	public static class Attack extends Suite implements Iterable<Sentence> {
@@ -122,6 +127,11 @@ public class Scripts extends Suite implements Iterable<Monster> {
 				// keep it without content
 			}
 			return clone;
+		}
+
+		@Override
+		public String toString() {
+			return getAttackIDs() + " (" + getAttackComment() + ")";
 		}
 	}
 
@@ -216,6 +226,11 @@ public class Scripts extends Suite implements Iterable<Monster> {
 			}
 			return clone;
 		}
+
+		@Override
+		public String toString() {
+			return getContent();
+		}
 	}
 
 	public static class Info extends Suite {
@@ -281,6 +296,11 @@ public class Scripts extends Suite implements Iterable<Monster> {
 				// keep it without content
 			}
 			return clone;
+		}
+
+		@Override
+		public String toString() {
+			return getSentenceID();
 		}
 	}
 
