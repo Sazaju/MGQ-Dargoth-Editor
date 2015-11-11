@@ -12,7 +12,6 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import fr.vergne.ioutils.FileUtils;
 import fr.vergne.translation.TranslationProject;
 import fr.vergne.translation.util.EntryFilter;
 import fr.vergne.translation.util.Feature;
