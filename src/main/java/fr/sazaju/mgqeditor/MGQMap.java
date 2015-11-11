@@ -17,6 +17,7 @@ import fr.sazaju.mgqeditor.util.Saver;
 import fr.sazaju.mgqeditor.util.Storage;
 import fr.vergne.ioutils.FileUtils;
 import fr.vergne.translation.TranslationMap;
+import fr.vergne.translation.util.Switcher;
 
 public class MGQMap implements TranslationMap<MGQEntry> {
 
@@ -26,6 +27,18 @@ public class MGQMap implements TranslationMap<MGQEntry> {
 	private final Scripts parsed;
 	private final List<MGQEntry> entries;
 	private final Saver saver;
+	private final Switcher<String, String> formatter = new Switcher<String, String>() {
+
+		@Override
+		public String switchForth(String raw) {
+			return raw.replace("\\n", "\n");
+		}
+
+		@Override
+		public String switchBack(String formatted) {
+			return formatted.replace("\n", "\\n");
+		}
+	};
 
 	public MGQMap(MapID id) throws IOException {
 		file = id.getFile();
@@ -59,11 +72,14 @@ public class MGQMap implements TranslationMap<MGQEntry> {
 
 						@Override
 						public String read() {
-							return sentence.getMessage();
+							return formatter.switchForth(sentence.getMessage());
 						}
 
 						@Override
 						public void write(String content) {
+							content = formatter.switchBack(content);
+							logger.info("Update sentence " + sentence + ": "
+									+ content);
 							sentence.setMessage(content);
 						}
 					};
