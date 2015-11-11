@@ -48,6 +48,7 @@ public class MGQEditor extends Editor<MapID, MGQEntry, MGQMap, MGQProject> {
 
 		printer.println("java.util.logging.FileHandler.pattern = vh-editor.%u.%g.log");
 		printer.println("java.util.logging.FileHandler.level = ALL");
+		printer.println("java.util.logging.FileHandler.formatter = java.util.logging.SimpleFormatter");
 
 		printer.println("java.util.logging.ConsoleHandler.level = ALL");
 
