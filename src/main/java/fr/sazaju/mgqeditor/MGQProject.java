@@ -19,20 +19,20 @@ import fr.vergne.translation.util.MapNamer;
 
 public class MGQProject implements TranslationProject<MGQEntry, MapID, MGQMap> {
 
+	private final File projectDirectory;
 	private final Map<MapID, WeakReference<MGQMap>> mapCache = new HashMap<>();
 	private static final Logger logger = Logger.getLogger(MGQProject.class
 			.getName());
-	private final File directory;
 
-	public MGQProject(File directory) {
-		this.directory = directory;
+	public MGQProject(File projectDirectory) {
+		this.projectDirectory = projectDirectory;
 	}
 
 	@Override
 	public Iterator<MapID> iterator() {
 		LinkedList<MapID> files = new LinkedList<>();
 		// TODO consider all the files
-		File scriptDirectory = new File(directory, "Scripts");
+		File scriptDirectory = new File(projectDirectory, "Scripts");
 		for (File file : scriptDirectory.listFiles()) {
 			if (file.getName().matches("Script_0+(197)_[^.]*.txt")) {
 				files.add(new MapID(file));
@@ -81,7 +81,7 @@ public class MGQProject implements TranslationProject<MGQEntry, MapID, MGQMap> {
 		if (reference == null || reference.get() == null) {
 			try {
 				logger.info("Building map " + id + "...");
-				MGQMap map = new MGQMap(id);
+				MGQMap map = new MGQMap(id, projectDirectory);
 				mapCache.put(id, new WeakReference<MGQMap>(map));
 				logger.info("Map cached.");
 				return map;

@@ -1,16 +1,31 @@
 package fr.sazaju.mgqeditor;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Logger;
+
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.ObjectLoader;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevSort;
+import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.treewalk.TreeWalk;
+import org.eclipse.jgit.treewalk.filter.PathFilter;
 
 import fr.sazaju.mgqeditor.regex.Scripts;
 import fr.sazaju.mgqeditor.regex.Scripts.Attack;
@@ -44,9 +59,9 @@ public class MGQMap implements TranslationMap<MGQEntry> {
 		}
 	};
 
-	public MGQMap(MapID id) throws IOException {
-		file = id.getFile();
-		
+	public MGQMap(MapID mapID, File projectDirectory) throws IOException {
+		file = mapID.getFile();
+
 		logger.info("Parsing " + file + "...");
 		parsed = new Scripts();
 		parsed.setContent(FileUtils.readFileToString(file));
@@ -124,6 +139,82 @@ public class MGQMap implements TranslationMap<MGQEntry> {
 			}
 		}
 		logger.info("Entries built: " + entries.size());
+
+		Path pathAbsolute = Paths.get(mapID.getFile().getPath());
+		Path pathBase = Paths.get(projectDirectory.getPath());
+		Path pathRelative = pathBase.relativize(pathAbsolute);
+		String filePath = pathRelative.toString();
+
+		logger.info("Retrieving Japanese from git repository "
+				+ projectDirectory + "...");
+		Repository repo = Git.open(projectDirectory).getRepository();
+		RevWalk revWalk = new RevWalk(repo);
+		revWalk.sort(RevSort.TOPO, true);
+		revWalk.sort(RevSort.REVERSE, true);
+		revWalk.setTreeFilter(PathFilter.create(filePath));
+		ObjectId headId = repo.resolve(Constants.HEAD);
+		RevCommit headCommit = revWalk.parseCommit(headId);
+		revWalk.markStart(headCommit);
+		try {
+			Iterator<RevCommit> commitIterator = revWalk.iterator();
+			while (commitIterator.hasNext()) {
+				RevCommit commit = commitIterator.next();
+				logger.info("Checking commit " + commit.getId().getName()
+						+ "...");
+				TreeWalk treeWalk = new TreeWalk(repo);
+				try {
+					treeWalk.addTree(commit.getTree());
+					treeWalk.setRecursive(true);
+					treeWalk.setFilter(PathFilter.create(filePath));
+					if (!treeWalk.next()) {
+						logger.warning("File not found in commit " + commit
+								+ ": " + mapID.getFile());
+					} else {
+						logger.info("Retrieving file content...");
+						ObjectLoader loader = repo
+								.open(treeWalk.getObjectId(0));
+						ByteArrayOutputStream out = new ByteArrayOutputStream();
+						loader.copyTo(out);
+						Scripts oldParsed = new Scripts();
+						oldParsed.setContent(out.toString());
+						Iterator<Entry<FullSentenceID, Storage>> entryIterator = originalsToRetrieve
+								.entrySet().iterator();
+						int total = originalsToRetrieve.size();
+						int count = 0;
+						while (entryIterator.hasNext()) {
+							Entry<FullSentenceID, Storage> entry = entryIterator
+									.next();
+							FullSentenceID sentenceID = entry.getKey();
+							logger.finest("Searching Japanese for "
+									+ sentenceID + "...");
+							Sentence sentence = oldParsed
+									.getSentence(sentenceID);
+							if (sentence == null) {
+								logger.finest("Japanese not found for "
+										+ sentenceID);
+							} else {
+								entry.getValue().write(sentence.getMessage());
+								entryIterator.remove();
+								logger.finest("Japanese retrieved for "
+										+ sentenceID);
+								count++;
+							}
+						}
+						logger.info("Japanese retrieved: " + count + "/"
+								+ total);
+					}
+				} finally {
+					treeWalk.close();
+				}
+			}
+		} finally {
+			revWalk.close();
+		}
+		if (originalsToRetrieve.isEmpty()) {
+			// all done
+		} else {
+			logger.severe("Missing Japanese: " + originalsToRetrieve.size());
+		}
 	}
 
 	@Override
