@@ -136,8 +136,16 @@ public class MGQMap implements TranslationMap<MGQEntry> {
 							original = content;
 						}
 					};
-					originalsToRetrieve.put(new FullSentenceID(monster, attack,
-							sentence), originalStorage);
+					FullSentenceID sentenceID = new FullSentenceID(monster,
+							attack, sentence);
+					Storage old = originalsToRetrieve.put(sentenceID,
+							originalStorage);
+					if (old == null) {
+						// new ID, expected
+					} else {
+						throw new RuntimeException(
+								"An ID occurs multiple times: " + sentenceID);
+					}
 					MGQEntry entry = new MGQEntry(originalStorage,
 							translationStorage, saver);
 					entries.add(entry);
@@ -164,7 +172,7 @@ public class MGQMap implements TranslationMap<MGQEntry> {
 		revWalk.markStart(headCommit);
 		try {
 			Iterator<RevCommit> commitIterator = revWalk.iterator();
-			while (commitIterator.hasNext()) {
+			while (commitIterator.hasNext() && !originalsToRetrieve.isEmpty()) {
 				RevCommit commit = commitIterator.next();
 				logger.info("Checking commit " + commit.getId().getName()
 						+ "...");

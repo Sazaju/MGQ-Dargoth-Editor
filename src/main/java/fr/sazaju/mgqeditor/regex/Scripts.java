@@ -33,16 +33,15 @@ public class Scripts extends Suite implements Iterable<Monster> {
 
 	public Sentence getSentence(FullSentenceID sentenceID) {
 		for (Monster monster : this) {
-			if (monster.getMonsterID() != sentenceID.monsterID) {
+			if (!sentenceID.isMonster(monster)) {
 				// not the right monster
 			} else {
 				for (Attack attack : monster) {
-					if (attack.getAttackID() != sentenceID.attackID) {
+					if (!sentenceID.isAttack(attack)) {
 						// not the right attack
 					} else {
 						for (Sentence sentence : attack) {
-							if (sentence.getSentenceID().equals(
-									sentenceID.sentenceID)) {
+							if (!sentenceID.isSentence(sentence)) {
 								// not the right sentence
 							} else {
 								return sentence;
@@ -342,14 +341,37 @@ public class Scripts extends Suite implements Iterable<Monster> {
 	}
 
 	public static class FullSentenceID {
-		private final int monsterID;
-		private final int attackID;
-		private final String sentenceID;
+		private final Monster monster;
+		private final Attack attack;
+		private final Sentence sentence;
 
 		public FullSentenceID(Monster monster, Attack attack, Sentence sentence) {
-			this.monsterID = monster.getMonsterID();
-			this.attackID = attack.getAttackID();
-			this.sentenceID = sentence.getSentenceID();
+			this.monster = monster;
+			this.attack = attack;
+			this.sentence = sentence;
+		}
+
+		public boolean isMonster(Monster monster) {
+			if (this.monster.getMonsterID() == monster.getMonsterID()) {
+				return this.monster.getMonsterComment().equals(
+						monster.getMonsterComment());
+			} else {
+				return false;
+			}
+		}
+
+		public boolean isAttack(Attack attack) {
+			if (this.attack.getAttackID() == attack.getAttackID()) {
+				return this.attack.getAttackComment().equals(
+						attack.getAttackComment());
+			} else {
+				return false;
+			}
+		}
+
+		public boolean isSentence(Sentence sentence) {
+			return this.sentence.getSentenceID().equals(
+					sentence.getSentenceID());
 		}
 
 		@Override
@@ -358,8 +380,8 @@ public class Scripts extends Suite implements Iterable<Monster> {
 				return true;
 			} else if (obj instanceof FullSentenceID) {
 				FullSentenceID id = (FullSentenceID) obj;
-				return id.monsterID == monsterID && id.attackID == attackID
-						&& id.sentenceID.equals(sentenceID);
+				return isMonster(id.monster) && isAttack(id.attack)
+						&& isSentence(id.sentence);
 			} else {
 				return false;
 			}
@@ -367,13 +389,17 @@ public class Scripts extends Suite implements Iterable<Monster> {
 
 		@Override
 		public int hashCode() {
-			return monsterID + attackID + sentenceID.hashCode();
+			return monster.getMonsterComment().hashCode()
+					+ attack.getAttackComment().hashCode()
+					+ sentence.hashCode();
 		}
 
 		@Override
 		public String toString() {
-			return "[M=" + monsterID + ",A=" + attackID + ",S=" + sentenceID
-					+ "]";
+			return "[M=" + monster.getMonsterID() + "/"
+					+ monster.getMonsterComment() + ",A="
+					+ attack.getAttackID() + "/" + attack.getAttackComment()
+					+ ",S=" + sentence.getSentenceID() + "]";
 		}
 	}
 }
