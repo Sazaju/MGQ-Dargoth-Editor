@@ -82,7 +82,7 @@ public class MGQEntry implements TranslationEntry<MGQMetadata> {
 	@Override
 	public void resetAll() {
 		resetTranslation();
-		// TODO reset metadata too
+		metadata.resetAll();
 	}
 
 	@Override
