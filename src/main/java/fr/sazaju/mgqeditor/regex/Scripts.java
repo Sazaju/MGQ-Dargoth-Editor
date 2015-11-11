@@ -245,7 +245,7 @@ public class Scripts extends Suite implements Iterable<Monster> {
 							"\", \"[^\"]*+\", [0-9]++\\],"));
 		}
 
-		public String getID() {
+		public String getSentenceID() {
 			return get(0).getContent().substring(1).replaceAll(" .*", "");
 		}
 

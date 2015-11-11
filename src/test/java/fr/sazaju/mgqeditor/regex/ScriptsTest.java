@@ -47,7 +47,7 @@ public class ScriptsTest {
 		Sentence sentence = new Scripts.Sentence();
 		sentence.setContent(":word_1 => [\"【スキュラ】\nほぉら、触手を巻き付かせてあげるわ……\", \"scylla_fc1\", 0],");
 
-		assertEquals("word_1", sentence.getID());
+		assertEquals("word_1", sentence.getSentenceID());
 	}
 
 	@Test
@@ -135,19 +135,19 @@ public class ScriptsTest {
 			assertTrue(iterator.hasNext());
 			Sentence sentence = iterator.next();
 			assertNotNull(sentence);
-			assertEquals("word_1", sentence.getID());
+			assertEquals("word_1", sentence.getSentenceID());
 		}
 		{
 			assertTrue(iterator.hasNext());
 			Sentence sentence = iterator.next();
 			assertNotNull(sentence);
-			assertEquals("word_2", sentence.getID());
+			assertEquals("word_2", sentence.getSentenceID());
 		}
 		{
 			assertTrue(iterator.hasNext());
 			Sentence sentence = iterator.next();
 			assertNotNull(sentence);
-			assertEquals("word_3", sentence.getID());
+			assertEquals("word_3", sentence.getSentenceID());
 		}
 		assertFalse(iterator.hasNext());
 	}
