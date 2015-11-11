@@ -2,7 +2,9 @@ package fr.sazaju.mgqeditor;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -52,11 +54,22 @@ public class MGQMap implements TranslationMap<MGQEntry> {
 
 			@Override
 			public void save() {
+				logger.info("Saving " + file + "...");
+				InputStream stream = parsed.getInputStream();
 				try {
-					FileUtils.write(file, parsed.getContent());
+					FileOutputStream out = new FileOutputStream(file);
+					byte[] buffer = new byte[256];
+					int count;
+					while ((count = stream.read(buffer)) != -1) {
+						out.write(buffer, 0, count);
+					}
+					out.close();
 				} catch (FileNotFoundException e) {
-					logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
+					throw new RuntimeException(e);
+				} catch (IOException e) {
+					throw new RuntimeException(e);
 				}
+				logger.info("File saved.");
 			}
 		};
 
