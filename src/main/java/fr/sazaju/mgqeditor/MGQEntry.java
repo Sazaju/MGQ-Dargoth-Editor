@@ -51,9 +51,17 @@ public class MGQEntry implements TranslationEntry<MGQMetadata> {
 		}
 	}
 
+	private void writeTranslation() {
+		if (translationStorage.read().equals(translation)) {
+			// nothing to update
+		} else {
+			translationStorage.write(translation);
+		}
+	}
+
 	@Override
 	public void saveTranslation() {
-		translationStorage.write(translation);
+		writeTranslation();
 		saver.save();
 		for (TranslationListener listener : listeners) {
 			listener.translationStored();
@@ -66,7 +74,7 @@ public class MGQEntry implements TranslationEntry<MGQMetadata> {
 	}
 
 	public void writeAll() {
-		translationStorage.write(translation);
+		writeTranslation();
 		// TODO write metadata too
 	}
 
