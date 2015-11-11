@@ -26,6 +26,11 @@ public class Scripts extends Suite implements Iterable<Monster> {
 		return ((SeparatedLoop<Monster, Blank>) get(3)).iterator();
 	}
 
+	@SuppressWarnings("unchecked")
+	public int size() {
+		return ((SeparatedLoop<Monster, Blank>) get(3)).size();
+	}
+
 	public static class Monster extends Suite implements Iterable<Attack> {
 		public Monster() {
 			super(new Formula("[0-9]++"), new Atom(" => { # "), new Formula(
@@ -38,6 +43,11 @@ public class Scripts extends Suite implements Iterable<Monster> {
 		@Override
 		public Iterator<Attack> iterator() {
 			return ((SeparatedLoop<Attack, Blank>) get(4)).iterator();
+		}
+
+		@SuppressWarnings("unchecked")
+		public int size() {
+			return ((SeparatedLoop<Attack, Blank>) get(4)).size();
 		}
 
 		public int getMonsterID() {
@@ -74,6 +84,11 @@ public class Scripts extends Suite implements Iterable<Monster> {
 		@Override
 		public Iterator<Sentence> iterator() {
 			return ((SeparatedLoop<Sentence, Blank>) get(5)).iterator();
+		}
+
+		@SuppressWarnings("unchecked")
+		public int size() {
+			return ((SeparatedLoop<Sentence, Blank>) get(5)).size();
 		}
 
 		public int getAttackID() {
