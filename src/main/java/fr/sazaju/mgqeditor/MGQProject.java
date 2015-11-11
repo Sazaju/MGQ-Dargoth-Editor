@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import fr.vergne.translation.TranslationProject;
+import fr.vergne.translation.impl.IncompleteTranslationFilter;
 import fr.vergne.translation.util.EntryFilter;
 import fr.vergne.translation.util.Feature;
 import fr.vergne.translation.util.MapNamer;
@@ -21,11 +22,15 @@ public class MGQProject implements TranslationProject<MGQEntry, MapID, MGQMap> {
 
 	private final File projectDirectory;
 	private final Map<MapID, WeakReference<MGQMap>> mapCache = new HashMap<>();
+	private final Collection<EntryFilter<MGQEntry>> filters;
 	private static final Logger logger = Logger.getLogger(MGQProject.class
 			.getName());
 
 	public MGQProject(File projectDirectory) {
 		this.projectDirectory = projectDirectory;
+
+		this.filters = new LinkedList<>();
+		this.filters.add(new IncompleteTranslationFilter<MGQEntry>());
 	}
 
 	@Override
@@ -112,7 +117,7 @@ public class MGQProject implements TranslationProject<MGQEntry, MapID, MGQMap> {
 
 	@Override
 	public Collection<EntryFilter<MGQEntry>> getEntryFilters() {
-		return Collections.emptyList();
+		return filters;
 	}
 
 }
