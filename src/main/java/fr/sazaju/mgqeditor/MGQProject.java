@@ -2,11 +2,14 @@ package fr.sazaju.mgqeditor;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import fr.vergne.ioutils.FileUtils;
@@ -17,6 +20,7 @@ import fr.vergne.translation.util.MapNamer;
 
 public class MGQProject implements TranslationProject<MGQEntry, MapID, MGQMap> {
 
+	private final Map<MapID, WeakReference<MGQMap>> mapCache = new HashMap<>();
 	private static final Logger logger = Logger.getLogger(MGQProject.class
 			.getName());
 	private final File directory;
@@ -74,13 +78,19 @@ public class MGQProject implements TranslationProject<MGQEntry, MapID, MGQMap> {
 
 	@Override
 	public MGQMap getMap(MapID id) {
-		try {
-			logger.info("Building map " + id + "...");
-			MGQMap map = new MGQMap(id);
-			logger.info("Map built.");
-			return map;
-		} catch (IOException e) {
-			throw new RuntimeException(e);
+		WeakReference<MGQMap> reference = mapCache.get(id);
+		if (reference == null || reference.get() == null) {
+			try {
+				logger.info("Building map " + id + "...");
+				MGQMap map = new MGQMap(id);
+				mapCache.put(id, new WeakReference<MGQMap>(map));
+				logger.info("Map cached.");
+				return map;
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		} else {
+			return reference.get();
 		}
 	}
 
