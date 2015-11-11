@@ -101,6 +101,9 @@ public class MGQMap implements TranslationMap<MGQEntry> {
 					logger.finest("Check sentence " + sentence + "...");
 					Storage translationStorage = new Storage() {
 
+						private final Logger logger = Logger
+								.getLogger(Storage.class.getName());
+
 						@Override
 						public String read() {
 							return formatter.switchForth(sentence.getMessage());
@@ -117,6 +120,8 @@ public class MGQMap implements TranslationMap<MGQEntry> {
 					Storage originalStorage = new Storage() {
 
 						private String original = "<not provided>";
+						private final Logger logger = Logger
+								.getLogger(Storage.class.getName());
 
 						@Override
 						public String read() {
@@ -126,6 +131,8 @@ public class MGQMap implements TranslationMap<MGQEntry> {
 						@Override
 						public void write(String content) {
 							content = formatter.switchBack(content);
+							logger.info("Retrieve original " + sentence + ": "
+									+ content);
 							original = content;
 						}
 					};
