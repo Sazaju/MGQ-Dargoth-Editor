@@ -37,6 +37,7 @@ import fr.sazaju.mgqeditor.util.Storage;
 import fr.vergne.ioutils.FileUtils;
 import fr.vergne.translation.TranslationMap;
 import fr.vergne.translation.util.Switcher;
+import fr.vergne.translation.util.impl.FileBasedProperties;
 
 public class MGQMap implements TranslationMap<MGQEntry> {
 
@@ -160,6 +161,50 @@ public class MGQMap implements TranslationMap<MGQEntry> {
 		Path pathRelative = pathBase.relativize(pathAbsolute);
 		String filePath = pathRelative.toString();
 
+		retrieveFromCache(projectDirectory, originalsToRetrieve, filePath);
+		retrieveFromGit(projectDirectory, originalsToRetrieve, filePath);
+
+		if (originalsToRetrieve.isEmpty()) {
+			// all done
+		} else {
+			logger.severe("Missing Japanese: " + originalsToRetrieve.size());
+		}
+	}
+
+	private void retrieveFromCache(File projectDirectory,
+			Map<FullSentenceID, Storage> originalsToRetrieve, String filePath) {
+		File cacheDirectory = getCacheDirectory();
+		File cacheFile = new File(cacheDirectory, filePath);
+		FileBasedProperties cache = new FileBasedProperties(cacheFile, false);
+
+		logger.info("Retrieving Japanese from cache " + cacheFile + "...");
+		Iterator<Entry<FullSentenceID, Storage>> iterator = originalsToRetrieve
+				.entrySet().iterator();
+		int total = originalsToRetrieve.size();
+		int count = 0;
+		while (iterator.hasNext()) {
+			Entry<FullSentenceID, Storage> entry = iterator.next();
+			FullSentenceID sentenceID = entry.getKey();
+			String content = cache.getProperty(sentenceID.toString(), null);
+			if (content == null) {
+				// unknown entry, nothing retrieved
+			} else {
+				count++;
+				Storage storage = entry.getValue();
+				storage.write(content);
+				iterator.remove();
+			}
+		}
+		logger.info("Japanese retrieved: " + count + "/" + total);
+	}
+
+	private void retrieveFromGit(File projectDirectory,
+			Map<FullSentenceID, Storage> originalsToRetrieve, String filePath)
+			throws IOException {
+		File cacheDirectory = getCacheDirectory();
+		FileBasedProperties cache = new FileBasedProperties(new File(
+				cacheDirectory, filePath), false);
+
 		logger.info("Retrieving Japanese from git repository "
 				+ projectDirectory + "...");
 		Repository repo = Git.open(projectDirectory).getRepository();
@@ -183,7 +228,7 @@ public class MGQMap implements TranslationMap<MGQEntry> {
 					treeWalk.setFilter(PathFilter.create(filePath));
 					if (!treeWalk.next()) {
 						logger.warning("File not found in commit " + commit
-								+ ": " + mapID.getFile());
+								+ ": " + filePath);
 					} else {
 						logger.info("Retrieving file content...");
 						ObjectLoader loader = repo
@@ -209,6 +254,8 @@ public class MGQMap implements TranslationMap<MGQEntry> {
 										+ sentenceID);
 							} else {
 								entry.getValue().write(sentence.getMessage());
+								cache.setProperty(sentenceID.toString(),
+										sentence.getMessage());
 								entryIterator.remove();
 								logger.finest("Japanese retrieved for "
 										+ sentenceID);
@@ -217,6 +264,11 @@ public class MGQMap implements TranslationMap<MGQEntry> {
 						}
 						logger.info("Japanese retrieved: " + count + "/"
 								+ total);
+						if (count > 0) {
+							cache.save();
+						} else {
+							// nothing to save
+						}
 					}
 				} finally {
 					treeWalk.close();
@@ -224,11 +276,6 @@ public class MGQMap implements TranslationMap<MGQEntry> {
 			}
 		} finally {
 			revWalk.close();
-		}
-		if (originalsToRetrieve.isEmpty()) {
-			// all done
-		} else {
-			logger.severe("Missing Japanese: " + originalsToRetrieve.size());
 		}
 	}
 
@@ -260,5 +307,26 @@ public class MGQMap implements TranslationMap<MGQEntry> {
 		for (MGQEntry entry : entries) {
 			entry.resetAll();
 		}
+	}
+
+	private static File getCacheDirectory() {
+		File tempDirectory;
+		try {
+			tempDirectory = File.createTempFile("tmp", "").getParentFile();
+		} catch (IOException e) {
+			throw new RuntimeException(
+					"Impossible to retrieve the temp directory", e);
+		}
+		File cacheDirectory = new File(tempDirectory, "MGQ-Editor");
+		if (cacheDirectory.isDirectory()) {
+			// already created
+		} else if (cacheDirectory.mkdir()) {
+			// just created
+		} else {
+			throw new RuntimeException(
+					"Impossible to create the cache directory "
+							+ cacheDirectory);
+		}
+		return cacheDirectory;
 	}
 }
