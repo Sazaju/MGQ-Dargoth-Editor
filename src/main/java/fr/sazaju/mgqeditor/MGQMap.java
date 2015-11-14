@@ -326,14 +326,7 @@ public class MGQMap implements TranslationMap<MGQEntry> {
 	}
 
 	private static File getCacheDirectory() {
-		File tempDirectory;
-		try {
-			tempDirectory = File.createTempFile("tmp", "").getParentFile();
-		} catch (IOException e) {
-			throw new RuntimeException(
-					"Impossible to retrieve the temp directory", e);
-		}
-		File cacheDirectory = new File(tempDirectory, "MGQ-Editor");
+		File cacheDirectory = new File("JapCache");
 		if (cacheDirectory.isDirectory()) {
 			// already created
 		} else if (cacheDirectory.mkdir()) {

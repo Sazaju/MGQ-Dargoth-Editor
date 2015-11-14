@@ -9,3 +9,4 @@ MGQ-Dargoth
 *.log
 *.lck
 logging.properties
+JapCache
