@@ -230,13 +230,21 @@ public class MGQMap implements TranslationMap<MGQEntry> {
 						logger.warning("File not found in commit " + commit
 								+ ": " + filePath);
 					} else {
+						logger.info("GC...");
+						System.gc();
+
 						logger.info("Retrieving file content...");
 						ObjectLoader loader = repo
 								.open(treeWalk.getObjectId(0));
-						ByteArrayOutputStream out = new ByteArrayOutputStream();
+						ByteArrayOutputStream out = new ByteArrayOutputStream(
+								(int) loader.getSize());
 						loader.copyTo(out);
+
+						logger.info("Parsing file content...");
 						Scripts oldParsed = new Scripts();
 						oldParsed.setContent(out.toString());
+
+						logger.info("Browsing file content...");
 						Iterator<Entry<FullSentenceID, Storage>> entryIterator = originalsToRetrieve
 								.entrySet().iterator();
 						int total = originalsToRetrieve.size();
