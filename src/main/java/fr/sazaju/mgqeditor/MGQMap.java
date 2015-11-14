@@ -98,7 +98,7 @@ public class MGQMap implements TranslationMap<MGQEntry> {
 			logger.fine("Check monster " + monster + "...");
 			for (Attack attack : monster) {
 				logger.finer("Check attack " + attack + "...");
-				for (final Sentence sentence : attack) {
+				for (final Sentence sentence : attack.getSentences()) {
 					logger.finest("Check sentence " + sentence + "...");
 					Storage translationStorage = new Storage() {
 

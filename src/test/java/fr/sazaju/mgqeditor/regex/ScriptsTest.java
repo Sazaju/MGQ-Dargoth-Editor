@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.junit.Test;
 
+import fr.sazaju.mgqeditor.regex.Scripts.ArrayEntry;
 import fr.sazaju.mgqeditor.regex.Scripts.Attack;
 import fr.sazaju.mgqeditor.regex.Scripts.AttackIDs;
 import fr.sazaju.mgqeditor.regex.Scripts.Blank;
@@ -29,30 +30,43 @@ public class ScriptsTest {
 	}
 
 	@Test
-	public void testSentenceFitsContent() {
-		Sentence sentence = new Scripts.Sentence();
-		sentence.setContent(":word_1 => [\"【スキュラ】\nほぉら、触手を巻き付かせてあげるわ……\", \"scylla_fc1\", 0],");
+	public void testArrayEntryFitsContent() {
+		ArrayEntry arrayEntry = new Scripts.ArrayEntry();
+		arrayEntry
+		.setContent(":word_1 => [\"【スキュラ】\\nほぉら、触手を巻き付かせてあげるわ……\", \"scylla_fc1\", 0],");
+	}
+
+	@Test
+	public void testArrayEntryProvidesID() {
+		ArrayEntry arrayEntry = new Scripts.ArrayEntry();
+		arrayEntry
+				.setContent(":word_1 => [\"【スキュラ】\\nほぉら、触手を巻き付かせてあげるわ……\", \"scylla_fc1\", 0],");
+
+		assertEquals("word_1", arrayEntry.getArrayEntryID());
 	}
 
 	@Test
 	public void testSentenceProvidesMessage() {
-		Sentence sentence = new Scripts.Sentence();
-		sentence.setContent(":word_1 => [\"【スキュラ】\nほぉら、触手を巻き付かせてあげるわ……\", \"scylla_fc1\", 0],");
-
-		assertEquals("【スキュラ】\nほぉら、触手を巻き付かせてあげるわ……", sentence.getMessage());
-	}
-
-	@Test
-	public void testSentenceProvidesID() {
-		Sentence sentence = new Scripts.Sentence();
-		sentence.setContent(":word_1 => [\"【スキュラ】\nほぉら、触手を巻き付かせてあげるわ……\", \"scylla_fc1\", 0],");
-
-		assertEquals("word_1", sentence.getSentenceID());
+		ArrayEntry arrayEntry = new Scripts.ArrayEntry();
+		{
+			arrayEntry
+			.setContent(":word_1 => [\"【スキュラ】\\nほぉら、触手を巻き付かせてあげるわ……\", \"scylla_fc1\", 0],");
+			Sentence sentence = new Sentence(arrayEntry);
+			assertEquals("【スキュラ】\\nほぉら、触手を巻き付かせてあげるわ……", sentence.getMessage());
+		}
+		
+		{
+			arrayEntry
+			.setContent(":word_1 => [\"【ラティ】\\nこのパン、すごい！\\nむしゃむしゃ、むしゃむしゃ……\", \"nezumi_fc1\",1],");
+			Sentence sentence = new Sentence(arrayEntry);
+			assertEquals("【ラティ】\\nこのパン、すごい！\\nむしゃむしゃ、むしゃむしゃ……", sentence.getMessage());
+		}
 	}
 
 	@Test
 	public void testAttackIDsFitsContent() {
 		AttackIDs attackIDs = new Scripts.AttackIDs();
+		attackIDs.setContent("3520");
 		attackIDs.setContent("[3520]");
 		attackIDs.setContent("[3520,3523]");
 		attackIDs.setContent("3520..3526");
@@ -122,32 +136,32 @@ public class ScriptsTest {
 	@Test
 	public void testAttackFitsContent() {
 		Attack attack = new Scripts.Attack();
-		attack.setContent("[3520] => { # 小悪魔パイズリ\n        :word_1 => [\"【スキュラ】\n邪魔よ、あなた達……！\", \"scylla_fc1\", 0],\n        :word_2 => [\"【スキュラ】\n私の触手で薙ぎ払ってあげるわ！\", \"scylla_fc1\", 0],\n        :word_3 => [\"【スキュラ】\nこの触手、見切れるかしら……？\", \"scylla_fc1\", 0],\n      },");
+		attack.setContent("[3520] => { # 小悪魔パイズリ\n        :word_1 => [\"【スキュラ】\\n邪魔よ、あなた達……！\", \"scylla_fc1\", 0],\n        :word_2 => [\"【スキュラ】\\n私の触手で薙ぎ払ってあげるわ！\", \"scylla_fc1\", 0],\n        :word_3 => [\"【スキュラ】\\nこの触手、見切れるかしら……？\", \"scylla_fc1\", 0],\n      },");
 	}
 
 	@Test
-	public void testAttackProvidesSentences() {
+	public void testAttackProvidesArrayEntrys() {
 		Attack attack = new Scripts.Attack();
-		attack.setContent("[3520] => { # 小悪魔パイズリ\n        :word_1 => [\"【スキュラ】\n邪魔よ、あなた達……！\", \"scylla_fc1\", 0],\n        :word_2 => [\"【スキュラ】\n私の触手で薙ぎ払ってあげるわ！\", \"scylla_fc1\", 0],\n        :word_3 => [\"【スキュラ】\nこの触手、見切れるかしら……？\", \"scylla_fc1\", 0],\n      },");
+		attack.setContent("[3520] => { # 小悪魔パイズリ\n        :word_1 => [\"【スキュラ】\\n邪魔よ、あなた達……！\", \"scylla_fc1\", 0],\n        :word_2 => [\"【スキュラ】\\n私の触手で薙ぎ払ってあげるわ！\", \"scylla_fc1\", 0],\n        :word_3 => [\"【スキュラ】\\nこの触手、見切れるかしら……？\", \"scylla_fc1\", 0],\n      },");
 
-		Iterator<Sentence> iterator = attack.iterator();
+		Iterator<ArrayEntry> iterator = attack.iterator();
 		{
 			assertTrue(iterator.hasNext());
-			Sentence sentence = iterator.next();
-			assertNotNull(sentence);
-			assertEquals("word_1", sentence.getSentenceID());
+			ArrayEntry arrayEntry = iterator.next();
+			assertNotNull(arrayEntry);
+			assertEquals("word_1", arrayEntry.getArrayEntryID());
 		}
 		{
 			assertTrue(iterator.hasNext());
-			Sentence sentence = iterator.next();
-			assertNotNull(sentence);
-			assertEquals("word_2", sentence.getSentenceID());
+			ArrayEntry arrayEntry = iterator.next();
+			assertNotNull(arrayEntry);
+			assertEquals("word_2", arrayEntry.getArrayEntryID());
 		}
 		{
 			assertTrue(iterator.hasNext());
-			Sentence sentence = iterator.next();
-			assertNotNull(sentence);
-			assertEquals("word_3", sentence.getSentenceID());
+			ArrayEntry arrayEntry = iterator.next();
+			assertNotNull(arrayEntry);
+			assertEquals("word_3", arrayEntry.getArrayEntryID());
 		}
 		assertFalse(iterator.hasNext());
 	}
@@ -155,7 +169,7 @@ public class ScriptsTest {
 	@Test
 	public void testAttackProvidesAttackComment() {
 		Attack attack = new Scripts.Attack();
-		attack.setContent("[3520] => { # 小悪魔パイズリ\n        :word_1 => [\"【スキュラ】\n邪魔よ、あなた達……！\", \"scylla_fc1\", 0],\n        :word_2 => [\"【スキュラ】\n私の触手で薙ぎ払ってあげるわ！\", \"scylla_fc1\", 0],\n        :word_3 => [\"【スキュラ】\nこの触手、見切れるかしら……？\", \"scylla_fc1\", 0],\n      },");
+		attack.setContent("[3520] => { # 小悪魔パイズリ\n        :word_1 => [\"【スキュラ】\\n邪魔よ、あなた達……！\", \"scylla_fc1\", 0],\n        :word_2 => [\"【スキュラ】\\n私の触手で薙ぎ払ってあげるわ！\", \"scylla_fc1\", 0],\n        :word_3 => [\"【スキュラ】\\nこの触手、見切れるかしら……？\", \"scylla_fc1\", 0],\n      },");
 
 		assertEquals("小悪魔パイズリ", attack.getAttackComment());
 	}
@@ -163,7 +177,7 @@ public class ScriptsTest {
 	@Test
 	public void testAttackProvidesAttackID() {
 		Attack attack = new Scripts.Attack();
-		attack.setContent("[3520] => { # 小悪魔パイズリ\n        :word_1 => [\"【スキュラ】\n邪魔よ、あなた達……！\", \"scylla_fc1\", 0],\n        :word_2 => [\"【スキュラ】\n私の触手で薙ぎ払ってあげるわ！\", \"scylla_fc1\", 0],\n        :word_3 => [\"【スキュラ】\nこの触手、見切れるかしら……？\", \"scylla_fc1\", 0],\n      },");
+		attack.setContent("[3520] => { # 小悪魔パイズリ\n        :word_1 => [\"【スキュラ】\\n邪魔よ、あなた達……！\", \"scylla_fc1\", 0],\n        :word_2 => [\"【スキュラ】\\n私の触手で薙ぎ払ってあげるわ！\", \"scylla_fc1\", 0],\n        :word_3 => [\"【スキュラ】\\nこの触手、見切れるかしら……？\", \"scylla_fc1\", 0],\n      },");
 
 		assertEquals(3520, attack.getAttackID());
 	}
@@ -171,13 +185,13 @@ public class ScriptsTest {
 	@Test
 	public void testMonsterFitsContent() {
 		Monster monster = new Scripts.Monster();
-		monster.setContent("1140 => { # キメラホムンクルス\n      [3500] => { # 攻撃\n        :word_1 => [\"[Chimera Homunculus]\n食らえ……\", \"c_homunculus_fc1\", 0],\n      },\n      [4296] => { # イクステンタクル\n        :word_1 => [\"[Chimera Homunculus]\nEven these tentacles can give men pleasure...\", \"c_homunculus_fc1\", 0],\n        :word_2 => [\"[Chimera Homunculus]\nI'll squeeze out the male's semen with this tentacle.\", \"c_homunculus_fc1\", 0],\n      },\n      [2360] => { # 屍は屍に\n        :word_1 => [\"[Chimera Homunculus]\n塵は塵に、屍は屍に……\", \"c_homunculus_fc1\", 0],\n      },\n    },");
+		monster.setContent("1140 => { # キメラホムンクルス\n      [3500] => { # 攻撃\n        :word_1 => [\"[Chimera Homunculus]\\n食らえ……\", \"c_homunculus_fc1\", 0],\n      },\n      [4296] => { # イクステンタクル\n        :word_1 => [\"[Chimera Homunculus]\\nEven these tentacles can give men pleasure...\", \"c_homunculus_fc1\", 0],\n        :word_2 => [\"[Chimera Homunculus]\\nI'll squeeze out the male's semen with this tentacle.\", \"c_homunculus_fc1\", 0],\n      },\n      [2360] => { # 屍は屍に\n        :word_1 => [\"[Chimera Homunculus]\\n塵は塵に、屍は屍に……\", \"c_homunculus_fc1\", 0],\n      },\n    },");
 	}
 
 	@Test
 	public void testMonsterProvidesAttacks() {
 		Monster monster = new Scripts.Monster();
-		monster.setContent("1140 => { # キメラホムンクルス\n      [3500] => { # 攻撃\n        :word_1 => [\"[Chimera Homunculus]\n食らえ……\", \"c_homunculus_fc1\", 0],\n      },\n      [4296] => { # イクステンタクル\n        :word_1 => [\"[Chimera Homunculus]\nEven these tentacles can give men pleasure...\", \"c_homunculus_fc1\", 0],\n        :word_2 => [\"[Chimera Homunculus]\nI'll squeeze out the male's semen with this tentacle.\", \"c_homunculus_fc1\", 0],\n      },\n      [2360] => { # 屍は屍に\n        :word_1 => [\"[Chimera Homunculus]\n塵は塵に、屍は屍に……\", \"c_homunculus_fc1\", 0],\n      },\n    },");
+		monster.setContent("1140 => { # キメラホムンクルス\n      [3500] => { # 攻撃\n        :word_1 => [\"[Chimera Homunculus]\\n食らえ……\", \"c_homunculus_fc1\", 0],\n      },\n      [4296] => { # イクステンタクル\n        :word_1 => [\"[Chimera Homunculus]\\nEven these tentacles can give men pleasure...\", \"c_homunculus_fc1\", 0],\n        :word_2 => [\"[Chimera Homunculus]\\nI'll squeeze out the male's semen with this tentacle.\", \"c_homunculus_fc1\", 0],\n      },\n      [2360] => { # 屍は屍に\n        :word_1 => [\"[Chimera Homunculus]\\n塵は塵に、屍は屍に……\", \"c_homunculus_fc1\", 0],\n      },\n    },");
 
 		Iterator<Attack> iterator = monster.iterator();
 		{
@@ -204,7 +218,7 @@ public class ScriptsTest {
 	@Test
 	public void testMonsterProvidesComment() {
 		Monster monster = new Scripts.Monster();
-		monster.setContent("1140 => { # キメラホムンクルス\n      [3500] => { # 攻撃\n        :word_1 => [\"[Chimera Homunculus]\n食らえ……\", \"c_homunculus_fc1\", 0],\n      },\n      [4296] => { # イクステンタクル\n        :word_1 => [\"[Chimera Homunculus]\nEven these tentacles can give men pleasure...\", \"c_homunculus_fc1\", 0],\n        :word_2 => [\"[Chimera Homunculus]\nI'll squeeze out the male's semen with this tentacle.\", \"c_homunculus_fc1\", 0],\n      },\n      [2360] => { # 屍は屍に\n        :word_1 => [\"[Chimera Homunculus]\n塵は塵に、屍は屍に……\", \"c_homunculus_fc1\", 0],\n      },\n    },");
+		monster.setContent("1140 => { # キメラホムンクルス\n      [3500] => { # 攻撃\n        :word_1 => [\"[Chimera Homunculus]\\n食らえ……\", \"c_homunculus_fc1\", 0],\n      },\n      [4296] => { # イクステンタクル\n        :word_1 => [\"[Chimera Homunculus]\\nEven these tentacles can give men pleasure...\", \"c_homunculus_fc1\", 0],\n        :word_2 => [\"[Chimera Homunculus]\\nI'll squeeze out the male's semen with this tentacle.\", \"c_homunculus_fc1\", 0],\n      },\n      [2360] => { # 屍は屍に\n        :word_1 => [\"[Chimera Homunculus]\\n塵は塵に、屍は屍に……\", \"c_homunculus_fc1\", 0],\n      },\n    },");
 
 		assertEquals("キメラホムンクルス", monster.getMonsterComment());
 	}
@@ -212,7 +226,7 @@ public class ScriptsTest {
 	@Test
 	public void testMonsterProvidesID() {
 		Monster monster = new Scripts.Monster();
-		monster.setContent("1140 => { # キメラホムンクルス\n      [3500] => { # 攻撃\n        :word_1 => [\"[Chimera Homunculus]\n食らえ……\", \"c_homunculus_fc1\", 0],\n      },\n      [4296] => { # イクステンタクル\n        :word_1 => [\"[Chimera Homunculus]\nEven these tentacles can give men pleasure...\", \"c_homunculus_fc1\", 0],\n        :word_2 => [\"[Chimera Homunculus]\nI'll squeeze out the male's semen with this tentacle.\", \"c_homunculus_fc1\", 0],\n      },\n      [2360] => { # 屍は屍に\n        :word_1 => [\"[Chimera Homunculus]\n塵は塵に、屍は屍に……\", \"c_homunculus_fc1\", 0],\n      },\n    },");
+		monster.setContent("1140 => { # キメラホムンクルス\n      [3500] => { # 攻撃\n        :word_1 => [\"[Chimera Homunculus]\\n食らえ……\", \"c_homunculus_fc1\", 0],\n      },\n      [4296] => { # イクステンタクル\n        :word_1 => [\"[Chimera Homunculus]\\nEven these tentacles can give men pleasure...\", \"c_homunculus_fc1\", 0],\n        :word_2 => [\"[Chimera Homunculus]\\nI'll squeeze out the male's semen with this tentacle.\", \"c_homunculus_fc1\", 0],\n      },\n      [2360] => { # 屍は屍に\n        :word_1 => [\"[Chimera Homunculus]\\n塵は塵に、屍は屍に……\", \"c_homunculus_fc1\", 0],\n      },\n    },");
 
 		assertEquals(1140, monster.getMonsterID());
 	}

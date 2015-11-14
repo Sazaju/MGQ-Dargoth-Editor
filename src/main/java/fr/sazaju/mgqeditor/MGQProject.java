@@ -39,7 +39,8 @@ public class MGQProject implements TranslationProject<MGQEntry, MapID, MGQMap> {
 		// TODO consider all the files
 		File scriptDirectory = new File(projectDirectory, "Scripts");
 		for (File file : scriptDirectory.listFiles()) {
-			if (file.getName().matches("Script_0+(197)_[^.]*.txt")) {
+			// TODO Texts 182|183|185|187|188|190| (192?)
+			if (file.getName().matches("Script_0+(195|196|197)_[^.]*.txt")) {
 				files.add(new MapID(file));
 			} else {
 				// not a file to translate

@@ -1,12 +1,14 @@
 package fr.sazaju.mgqeditor.regex;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedList;
 
 import fr.sazaju.mgqeditor.regex.Scripts.Monster;
 import fr.vergne.parsing.layer.standard.Atom;
 import fr.vergne.parsing.layer.standard.Choice;
 import fr.vergne.parsing.layer.standard.Formula;
-import fr.vergne.parsing.layer.standard.Option;
 import fr.vergne.parsing.layer.standard.Quantifier;
 import fr.vergne.parsing.layer.standard.Suite;
 import fr.vergne.parsing.layer.util.SeparatedLoop;
@@ -40,7 +42,7 @@ public class Scripts extends Suite implements Iterable<Monster> {
 					if (!sentenceID.isAttack(attack)) {
 						// not the right attack
 					} else {
-						for (Sentence sentence : attack) {
+						for (Sentence sentence : attack.getSentences()) {
 							if (!sentenceID.isSentence(sentence)) {
 								// not the right sentence
 							} else {
@@ -56,29 +58,30 @@ public class Scripts extends Suite implements Iterable<Monster> {
 
 	public static class Monster extends Suite implements Iterable<Attack> {
 		public Monster() {
-			super(new Formula("[0-9]++"), new Atom(" => { # "), new Formula(
-					"[^\n]*+"), new Blank(), new SeparatedLoop<Attack, Blank>(
-					Quantifier.POSSESSIVE, new Attack(), new Blank()),
+			super(new Formula("[0-9]++ => \\{ # "), new Formula("[^\n]*+"),
+					new Blank(), new SeparatedLoop<Attack, Blank>(
+							Quantifier.POSSESSIVE, new Attack(), new Blank()),
 					new Blank(), new Formula("\\},"));
 		}
 
 		@SuppressWarnings("unchecked")
 		@Override
 		public Iterator<Attack> iterator() {
-			return ((SeparatedLoop<Attack, Blank>) get(4)).iterator();
+			return ((SeparatedLoop<Attack, Blank>) get(3)).iterator();
 		}
 
 		@SuppressWarnings("unchecked")
 		public int size() {
-			return ((SeparatedLoop<Attack, Blank>) get(4)).size();
+			return ((SeparatedLoop<Attack, Blank>) get(3)).size();
 		}
 
 		public int getMonsterID() {
-			return Integer.parseInt(get(0).getContent());
+			return Integer.parseInt(get(0).getContent().replaceFirst(
+					"[^0-9].*", ""));
 		}
 
 		public String getMonsterComment() {
-			return get(2).getContent();
+			return get(1).getContent();
 		}
 
 		@Override
@@ -98,25 +101,24 @@ public class Scripts extends Suite implements Iterable<Monster> {
 		}
 	}
 
-	public static class Attack extends Suite implements Iterable<Sentence> {
+	public static class Attack extends Suite implements Iterable<ArrayEntry> {
 		public Attack() {
 			super(new AttackIDs(), new Formula(" => \\{ # ?+"), new Formula(
-					"[^\n]*+"), new Blank(), new Option<Suite>(new Suite(
-					new Info(), new Blank())),
-					new SeparatedLoop<Sentence, Blank>(Quantifier.POSSESSIVE,
-							new Sentence(), new Blank()), new Blank(),
+					"[^\n]*+"), new Blank(),
+					new SeparatedLoop<ArrayEntry, Blank>(Quantifier.POSSESSIVE,
+							new ArrayEntry(), new Blank()), new Blank(),
 					new Formula("\\},"));
 		}
 
 		@SuppressWarnings("unchecked")
 		@Override
-		public Iterator<Sentence> iterator() {
-			return ((SeparatedLoop<Sentence, Blank>) get(5)).iterator();
+		public Iterator<ArrayEntry> iterator() {
+			return ((SeparatedLoop<ArrayEntry, Blank>) get(4)).iterator();
 		}
 
 		@SuppressWarnings("unchecked")
 		public int size() {
-			return ((SeparatedLoop<Sentence, Blank>) get(5)).size();
+			return ((SeparatedLoop<ArrayEntry, Blank>) get(4)).size();
 		}
 
 		public int getAttackID() {
@@ -129,16 +131,6 @@ public class Scripts extends Suite implements Iterable<Monster> {
 
 		public String getAttackComment() {
 			return get(2).getContent();
-		}
-
-		public Info getInfo() {
-			@SuppressWarnings("unchecked")
-			Option<Suite> option = (Option<Suite>) get(4);
-			if (option.isPresent()) {
-				return option.getOption().get(0);
-			} else {
-				return null;
-			}
 		}
 
 		@Override
@@ -156,15 +148,28 @@ public class Scripts extends Suite implements Iterable<Monster> {
 		public String toString() {
 			return getAttackIDs() + " (" + getAttackComment() + ")";
 		}
+
+		public Collection<Sentence> getSentences() {
+			Collection<Sentence> sentences = new LinkedList<>();
+			for (ArrayEntry arrayEntry : this) {
+				if (arrayEntry.getArrayEntryID().startsWith("word_")) {
+					sentences.add(new Sentence(arrayEntry));
+				} else {
+					// not a sentence
+				}
+			}
+			return sentences;
+		}
 	}
 
 	public static class AttackIDs extends Choice implements Iterable<Integer> {
 		public AttackIDs() {
-			super(new Suite(new Atom("["), new SeparatedLoop<Formula, Atom>(
-					Quantifier.POSSESSIVE, new Formula("[0-9]++"),
-					new Atom(","), 1, Integer.MAX_VALUE), new Atom("]")),
-					new Suite(new Formula("[0-9]++"), new Atom(".."),
-							new Formula("[0-9]++")));
+			super(new Suite(new Formula("\\["),
+					new SeparatedLoop<Formula, Formula>(Quantifier.POSSESSIVE,
+							new Formula("[0-9]++"), new Formula(", ?+", ","),
+							1, Integer.MAX_VALUE), new Formula("\\]")),
+					new Suite(new Formula("[0-9]++"), new Formula("\\.\\."),
+							new Formula("[0-9]++")), new Formula("[0-9]++"));
 		}
 
 		@Override
@@ -221,6 +226,10 @@ public class Scripts extends Suite implements Iterable<Monster> {
 								"You cannot remove attack IDs.");
 					}
 				};
+			} else if (getCurrent() == getAlternative(2)) {
+				final int value = Integer.parseInt(((Formula) getCurrent())
+						.getContent());
+				return Arrays.asList(value).iterator();
 			} else {
 				throw new RuntimeException("Unmanaged alternative: "
 						+ getCurrent());
@@ -256,63 +265,27 @@ public class Scripts extends Suite implements Iterable<Monster> {
 		}
 	}
 
-	public static class Info extends Suite {
-		public Info() {
-			super(new Formula(":ct_pic => \""), new Formula("[^\"]++"),
-					new Formula("\","), new Blank(),
-					new Formula(":ct_se => \""), new Formula("[^\"]++"),
-					new Formula("\","), new Blank(),
-					new Formula(":ct_type => "), new Choice(new Atom(":basic"),
-							new Atom(":slide"), new Atom(":focus"), new Atom(
-									":long")), new Formula(","));
+	public static class ArrayEntry extends Suite {
+		public ArrayEntry() {
+			super(new Formula(":[^ ]++"), new Formula(" => "), new Formula(
+					"[^\n]*"), new Formula(","));
 		}
 
-		public String getPic() {
-			return get(1).getContent();
+		public String getArrayEntryID() {
+			return get(0).getContent().substring(1);
 		}
 
-		public String getSE() {
-			return get(5).getContent();
+		public String getArrayEntryContent() {
+			return get(2).getContent();
 		}
 
-		public String getType() {
-			return get(9).getContent();
+		public void setArrayEntryContent(String content) {
+			get(2).setContent(content);
 		}
 
 		@Override
 		public Object clone() {
-			Info clone = new Info();
-			if (getContent() != null) {
-				clone.setContent(getContent());
-			} else {
-				// keep it without content
-			}
-			return clone;
-		}
-	}
-
-	public static class Sentence extends Suite {
-		public Sentence() {
-			super(new Formula(":word_[0-9]++ => \\[\""),
-					new Formula("[^\"]*+"), new Formula(
-							"\", \"[^\"]*+\", [0-9]++\\],"));
-		}
-
-		public String getSentenceID() {
-			return get(0).getContent().substring(1).replaceAll(" .*", "");
-		}
-
-		public String getMessage() {
-			return get(1).getContent();
-		}
-
-		public void setMessage(String content) {
-			get(1).setContent(content);
-		}
-
-		@Override
-		public Object clone() {
-			Sentence clone = new Sentence();
+			ArrayEntry clone = new ArrayEntry();
 			if (getContent() != null) {
 				clone.setContent(getContent());
 			} else {
@@ -323,15 +296,44 @@ public class Scripts extends Suite implements Iterable<Monster> {
 
 		@Override
 		public String toString() {
+			return getArrayEntryID();
+		}
+	}
+
+	public static class Sentence {
+		private final ArrayEntry entry;
+		private final Suite parser = new Suite(new Formula("\\[\""),
+				new Formula("[^\"]*+"), new Formula(
+						"\", \"[^\"]*+\", ?[0-9]++\\]"));
+
+		public Sentence(ArrayEntry entry) {
+			this.entry = entry;
+			parser.setContent(entry.getArrayEntryContent());
+		}
+
+		public String getSentenceID() {
+			return entry.getArrayEntryID();
+		}
+
+		public String getMessage() {
+			return parser.get(1).getContent();
+		}
+
+		public void setMessage(String content) {
+			parser.get(1).setContent(content);
+			entry.setArrayEntryContent(parser.getContent());
+		}
+
+		@Override
+		public String toString() {
 			return getSentenceID();
 		}
 	}
 
 	public static class Blank extends Formula {
 		public Blank() {
-			super("\\s*+");
 			// set a default content
-			setContent("\n");
+			super("\\s*+", "\n");
 		}
 
 		@Override
