@@ -161,8 +161,16 @@ public class MGQMap implements TranslationMap<MGQEntry> {
 		Path pathRelative = pathBase.relativize(pathAbsolute);
 		String filePath = pathRelative.toString();
 
-		retrieveFromCache(projectDirectory, originalsToRetrieve, filePath);
-		retrieveFromGit(projectDirectory, originalsToRetrieve, filePath);
+		if (originalsToRetrieve.isEmpty()) {
+			// nothing to retrieve
+		} else {
+			retrieveFromCache(projectDirectory, originalsToRetrieve, filePath);
+		}
+		if (originalsToRetrieve.isEmpty()) {
+			// nothing more to retrieve
+		} else {
+			retrieveFromGit(projectDirectory, originalsToRetrieve, filePath);
+		}
 
 		if (originalsToRetrieve.isEmpty()) {
 			// all done
