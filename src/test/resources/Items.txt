@@ -1,0 +1,36 @@
+﻿Item 1
+ Name "Herb"
+
+Item 244
+ Name "***ダミー"
+
+Item 2
+ Name "High-Quality Herb"
+ Description "[Item] Target:Ally　Effect:300 HP Recovery\r\nMedicinal herb that recovers 300 of an ally's HP."
+
+Item 4
+ Name "Miracle Drug"
+ Description "[Item] Target:Ally Effect:30 MP Recovery\r\nMiraculous medicine that recovers 30 of an ally's MP."
+ // Dropped By Enemy022 "？？？", Dropped By Enemy063 "Meia", Dropped By Enemy068 "Succubus Nun", Dropped By Enemy075 "Ghost Girl", Dropped By Enemy081 "Zombie Girl", Dropped By Enemy084 "Elf", Dropped By Enemy088 "Fairies", Dropped By Enemy104 "Lamp Genie", Dropped By Enemy115 "Suck Vore", Dropped By Enemy117 "Worm Villager", Dropped By Enemy122 "Onahole Girl", Dropped By Enemy129 "Mirage Girl", Dropped By Enemy137 "Shinifa", Dropped By Enemy140 "Chimera Homunculus", Dropped By Enemy1022 "Nuruko", Dropped By Enemy1063 "Meia", Dropped By Enemy1068 "Succubus Nun", Dropped By Enemy1075 "Ghost Girl", Dropped By Enemy1081 "Zombie Girl", Dropped By Enemy1084 "Elf", Dropped By Enemy1088 "Fairies", Dropped By Enemy1104 "Lamp Genie", Dropped By Enemy1115 "Suck Vore", Dropped By Enemy1117 "Worm Villager", Dropped By Enemy1122 "Onahole Girl", Dropped By Enemy1129 "Mirage Girl", Dropped By Enemy1137 "Shinifa", Dropped By Enemy1140 "Chimera Homunculus", Sold in Map544-Event014
+
+Item 193
+ Name "Charming Snake Tail" 
+ Description "[Material] Material dropped by Lamia monsters."
+ // Dropped By Enemy106 "Cobra Girl", Dropped By Enemy107 "Nefertiti Lamias", Dropped By Enemy1106 "Cobra Girl", Dropped By Enemy1107 "Nefertiti Lamias"
+
+Weapon 1
+ Name "Dagger"
+ Description "[Dagger] A simple, easy to handle dagger."
+ // Sold in Map006-Event021, Sold in Map030-Event023, Sold in Map185-Event011
+
+Weapon 19
+ Name "***ダミー"
+
+Armor 1
+ Name "Clothes"
+ Description "[Clothes] Everyday clothes used when doing chores.\r\nDoesn't give a lot of defense in combat."
+ // Sold in Map006-Event022
+
+Armor 11
+ Name "***ダミー"
+
