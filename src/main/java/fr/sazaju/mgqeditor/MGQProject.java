@@ -12,6 +12,8 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import fr.sazaju.mgqeditor.parser.regex.Scripts;
+import fr.sazaju.mgqeditor.util.Generator;
 import fr.vergne.translation.TranslationProject;
 import fr.vergne.translation.impl.IncompleteTranslationFilter;
 import fr.vergne.translation.util.EntryFilter;
@@ -87,7 +89,19 @@ public class MGQProject implements TranslationProject<MGQEntry, MapID, MGQMap> {
 		if (reference == null || reference.get() == null) {
 			try {
 				logger.info("Building map " + id + "...");
-				MGQMap map = new MGQMap(id, projectDirectory);
+				MGQMap map;
+				if (id.getFile().getName().startsWith("Script_")) {
+					map = new MGQMap(id, projectDirectory,
+							new Generator<Scripts>() {
+
+								@Override
+								public Scripts generates() {
+									return new Scripts();
+								}
+							});
+				} else {
+					throw new RuntimeException("Not managed map: " + id);
+				}
 				mapCache.put(id, new WeakReference<MGQMap>(map));
 				logger.info("Map cached.");
 				return map;

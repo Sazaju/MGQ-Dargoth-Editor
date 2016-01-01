@@ -1,4 +1,4 @@
-package fr.sazaju.mgqeditor.regex;
+package fr.sazaju.mgqeditor.parser.regex;
 
 import static org.junit.Assert.*;
 
@@ -11,12 +11,12 @@ import java.util.List;
 
 import org.junit.Test;
 
-import fr.sazaju.mgqeditor.regex.Scripts.ArrayEntry;
-import fr.sazaju.mgqeditor.regex.Scripts.Attack;
-import fr.sazaju.mgqeditor.regex.Scripts.AttackIDs;
-import fr.sazaju.mgqeditor.regex.Scripts.Blank;
-import fr.sazaju.mgqeditor.regex.Scripts.Monster;
-import fr.sazaju.mgqeditor.regex.Scripts.Sentence;
+import fr.sazaju.mgqeditor.parser.regex.Scripts.ArrayEntry;
+import fr.sazaju.mgqeditor.parser.regex.Scripts.Attack;
+import fr.sazaju.mgqeditor.parser.regex.Scripts.AttackIDs;
+import fr.sazaju.mgqeditor.parser.regex.Scripts.Blank;
+import fr.sazaju.mgqeditor.parser.regex.Scripts.Monster;
+import fr.sazaju.mgqeditor.parser.regex.Scripts.ScriptSentence;
 import fr.vergne.ioutils.FileUtils;
 
 public class ScriptsTest {
@@ -33,7 +33,7 @@ public class ScriptsTest {
 	public void testArrayEntryFitsContent() {
 		ArrayEntry arrayEntry = new Scripts.ArrayEntry();
 		arrayEntry
-		.setContent(":word_1 => [\"【スキュラ】\\nほぉら、触手を巻き付かせてあげるわ……\", \"scylla_fc1\", 0],");
+				.setContent(":word_1 => [\"【スキュラ】\\nほぉら、触手を巻き付かせてあげるわ……\", \"scylla_fc1\", 0],");
 	}
 
 	@Test
@@ -50,16 +50,17 @@ public class ScriptsTest {
 		ArrayEntry arrayEntry = new Scripts.ArrayEntry();
 		{
 			arrayEntry
-			.setContent(":word_1 => [\"【スキュラ】\\nほぉら、触手を巻き付かせてあげるわ……\", \"scylla_fc1\", 0],");
-			Sentence sentence = new Sentence(arrayEntry);
-			assertEquals("【スキュラ】\\nほぉら、触手を巻き付かせてあげるわ……", sentence.getMessage());
+					.setContent(":word_1 => [\"【スキュラ】\\nほぉら、触手を巻き付かせてあげるわ……\", \"scylla_fc1\", 0],");
+			ScriptSentence sentence = new ScriptSentence(arrayEntry);
+			assertEquals("【スキュラ】\\nほぉら、触手を巻き付かせてあげるわ……", sentence.getContent());
 		}
-		
+
 		{
 			arrayEntry
-			.setContent(":word_1 => [\"【ラティ】\\nこのパン、すごい！\\nむしゃむしゃ、むしゃむしゃ……\", \"nezumi_fc1\",1],");
-			Sentence sentence = new Sentence(arrayEntry);
-			assertEquals("【ラティ】\\nこのパン、すごい！\\nむしゃむしゃ、むしゃむしゃ……", sentence.getMessage());
+					.setContent(":word_1 => [\"【ラティ】\\nこのパン、すごい！\\nむしゃむしゃ、むしゃむしゃ……\", \"nezumi_fc1\",1],");
+			ScriptSentence sentence = new ScriptSentence(arrayEntry);
+			assertEquals("【ラティ】\\nこのパン、すごい！\\nむしゃむしゃ、むしゃむしゃ……",
+					sentence.getContent());
 		}
 	}
 
@@ -244,7 +245,7 @@ public class ScriptsTest {
 		File file = new File(testFolder, "Scripts.txt");
 		scripts.setContent(FileUtils.readFileToString(file));
 
-		Iterator<Monster> iterator = scripts.iterator();
+		Iterator<Monster> iterator = scripts.getMonsters().iterator();
 		for (int i = 1; i <= 10; i++) {
 			assertTrue(iterator.hasNext());
 			Monster monster = iterator.next();

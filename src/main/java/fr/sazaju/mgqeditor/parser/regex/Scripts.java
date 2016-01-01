@@ -1,11 +1,14 @@
-package fr.sazaju.mgqeditor.regex;
+package fr.sazaju.mgqeditor.parser.regex;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.NoSuchElementException;
+import java.util.logging.Logger;
 
-import fr.sazaju.mgqeditor.regex.Scripts.Monster;
+import fr.sazaju.mgqeditor.parser.Parser;
+import fr.sazaju.mgqeditor.parser.regex.Scripts.FullSentenceID;
 import fr.vergne.parsing.layer.standard.Atom;
 import fr.vergne.parsing.layer.standard.Choice;
 import fr.vergne.parsing.layer.standard.Formula;
@@ -13,7 +16,10 @@ import fr.vergne.parsing.layer.standard.Quantifier;
 import fr.vergne.parsing.layer.standard.Suite;
 import fr.vergne.parsing.layer.util.SeparatedLoop;
 
-public class Scripts extends Suite implements Iterable<Monster> {
+public class Scripts extends Suite implements Parser<FullSentenceID> {
+
+	private static final Logger logger = Logger.getLogger(Scripts.class
+			.getName());
 
 	public Scripts() {
 		super(new Formula("[\\s\\S]*?"), new Formula("[A-Z_]++ = \\{"),
@@ -22,19 +28,57 @@ public class Scripts extends Suite implements Iterable<Monster> {
 				new Blank(), new Formula("\\}[\\s\\S]*+"));
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public Iterator<Monster> iterator() {
-		return ((SeparatedLoop<Monster, Blank>) get(3)).iterator();
-	}
+	public Iterator<FullSentenceID> iterator() {
+		return new Iterator<FullSentenceID>() {
 
-	@SuppressWarnings("unchecked")
-	public int size() {
-		return ((SeparatedLoop<Monster, Blank>) get(3)).size();
+			private final Iterator<Monster> monsterIterator = getMonsters()
+					.iterator();
+			private Monster monster = null;
+			private Iterator<Attack> attackIterator = null;
+			private Attack attack = null;
+			private Iterator<ScriptSentence> sentenceIterator = null;
+
+			@Override
+			public boolean hasNext() {
+				if (sentenceIterator != null && sentenceIterator.hasNext()) {
+					return true;
+				} else if (attackIterator != null && attackIterator.hasNext()) {
+					attack = attackIterator.next();
+					logger.finer("Check attack " + attack + "...");
+					sentenceIterator = attack.getSentences().iterator();
+					return hasNext();
+				} else if (monsterIterator.hasNext()) {
+					monster = monsterIterator.next();
+					logger.fine("Check monster " + monster + "...");
+					attackIterator = monster.iterator();
+					attack = null;
+					return hasNext();
+				} else {
+					return false;
+				}
+			}
+
+			@Override
+			public FullSentenceID next() {
+				if (hasNext()) {
+					ScriptSentence sentence = sentenceIterator.next();
+					logger.finest("Sentence found: " + sentence + "...");
+					return new FullSentenceID(monster, attack, sentence);
+				} else {
+					throw new NoSuchElementException();
+				}
+			}
+
+			@Override
+			public void remove() {
+				sentenceIterator.remove();
+			}
+		};
 	}
 
 	public Sentence getSentence(FullSentenceID sentenceID) {
-		for (Monster monster : this) {
+		for (Monster monster : getMonsters()) {
 			if (!sentenceID.isMonster(monster)) {
 				// not the right monster
 			} else {
@@ -42,7 +86,7 @@ public class Scripts extends Suite implements Iterable<Monster> {
 					if (!sentenceID.isAttack(attack)) {
 						// not the right attack
 					} else {
-						for (Sentence sentence : attack.getSentences()) {
+						for (ScriptSentence sentence : attack.getSentences()) {
 							if (!sentenceID.isSentence(sentence)) {
 								// not the right sentence
 							} else {
@@ -54,6 +98,16 @@ public class Scripts extends Suite implements Iterable<Monster> {
 			}
 		}
 		return null;
+	}
+
+	@SuppressWarnings("unchecked")
+	public Iterable<Monster> getMonsters() {
+		return ((SeparatedLoop<Monster, Blank>) get(3));
+	}
+
+	@SuppressWarnings("unchecked")
+	public int size() {
+		return ((SeparatedLoop<Monster, Blank>) get(3)).size();
 	}
 
 	public static class Monster extends Suite implements Iterable<Attack> {
@@ -149,11 +203,11 @@ public class Scripts extends Suite implements Iterable<Monster> {
 			return getAttackIDs() + " (" + getAttackComment() + ")";
 		}
 
-		public Collection<Sentence> getSentences() {
-			Collection<Sentence> sentences = new LinkedList<>();
+		public Collection<ScriptSentence> getSentences() {
+			Collection<ScriptSentence> sentences = new LinkedList<>();
 			for (ArrayEntry arrayEntry : this) {
 				if (arrayEntry.getArrayEntryID().startsWith("word_")) {
-					sentences.add(new Sentence(arrayEntry));
+					sentences.add(new ScriptSentence(arrayEntry));
 				} else {
 					// not a sentence
 				}
@@ -300,13 +354,13 @@ public class Scripts extends Suite implements Iterable<Monster> {
 		}
 	}
 
-	public static class Sentence {
+	public static class ScriptSentence implements Sentence {
 		private final ArrayEntry entry;
 		private final Suite parser = new Suite(new Formula("\\[\""),
 				new Formula("[^\"]*+"), new Formula(
 						"\", \"[^\"]*+\", ?[0-9]++\\]"));
 
-		public Sentence(ArrayEntry entry) {
+		public ScriptSentence(ArrayEntry entry) {
 			this.entry = entry;
 			parser.setContent(entry.getArrayEntryContent());
 		}
@@ -315,11 +369,13 @@ public class Scripts extends Suite implements Iterable<Monster> {
 			return entry.getArrayEntryID();
 		}
 
-		public String getMessage() {
+		@Override
+		public String getContent() {
 			return parser.get(1).getContent();
 		}
 
-		public void setMessage(String content) {
+		@Override
+		public void setContent(String content) {
 			parser.get(1).setContent(content);
 			entry.setArrayEntryContent(parser.getContent());
 		}
@@ -345,9 +401,10 @@ public class Scripts extends Suite implements Iterable<Monster> {
 	public static class FullSentenceID {
 		private final Monster monster;
 		private final Attack attack;
-		private final Sentence sentence;
+		private final ScriptSentence sentence;
 
-		public FullSentenceID(Monster monster, Attack attack, Sentence sentence) {
+		public FullSentenceID(Monster monster, Attack attack,
+				ScriptSentence sentence) {
 			this.monster = monster;
 			this.attack = attack;
 			this.sentence = sentence;
@@ -371,7 +428,7 @@ public class Scripts extends Suite implements Iterable<Monster> {
 			}
 		}
 
-		public boolean isSentence(Sentence sentence) {
+		public boolean isSentence(ScriptSentence sentence) {
 			return this.sentence.getSentenceID().equals(
 					sentence.getSentenceID());
 		}

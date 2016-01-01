@@ -27,11 +27,9 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
 
-import fr.sazaju.mgqeditor.regex.Scripts;
-import fr.sazaju.mgqeditor.regex.Scripts.Attack;
-import fr.sazaju.mgqeditor.regex.Scripts.FullSentenceID;
-import fr.sazaju.mgqeditor.regex.Scripts.Monster;
-import fr.sazaju.mgqeditor.regex.Scripts.Sentence;
+import fr.sazaju.mgqeditor.parser.Parser;
+import fr.sazaju.mgqeditor.parser.Parser.Sentence;
+import fr.sazaju.mgqeditor.util.Generator;
 import fr.sazaju.mgqeditor.util.Saver;
 import fr.sazaju.mgqeditor.util.Storage;
 import fr.vergne.ioutils.FileUtils;
@@ -44,7 +42,6 @@ public class MGQMap implements TranslationMap<MGQEntry> {
 	private static final Logger logger = Logger.getLogger(MGQMap.class
 			.getName());
 	private final File file;
-	private final Scripts parsed;
 	private final List<MGQEntry> entries;
 	private final Saver saver;
 	private final Switcher<String, String> formatter = new Switcher<String, String>() {
@@ -60,12 +57,14 @@ public class MGQMap implements TranslationMap<MGQEntry> {
 		}
 	};
 
-	public MGQMap(MapID mapID, File projectDirectory) throws IOException {
+	public <SentenceID> MGQMap(MapID mapID, File projectDirectory,
+			Generator<? extends Parser<SentenceID>> parserGenerator)
+			throws IOException {
 		file = mapID.getFile();
 
 		logger.info("Parsing " + file + "...");
-		parsed = new Scripts();
-		parsed.setContent(FileUtils.readFileToString(file));
+		final Parser<SentenceID> parser = parserGenerator.generates();
+		parser.setContent(FileUtils.readFileToString(file));
 		logger.info("File parsed...");
 
 		saver = new Saver() {
@@ -73,7 +72,7 @@ public class MGQMap implements TranslationMap<MGQEntry> {
 			@Override
 			public void save() {
 				logger.info("Saving " + file + "...");
-				InputStream stream = parsed.getInputStream();
+				InputStream stream = parser.getInputStream();
 				try {
 					FileOutputStream out = new FileOutputStream(file);
 					byte[] buffer = new byte[256];
@@ -93,66 +92,58 @@ public class MGQMap implements TranslationMap<MGQEntry> {
 
 		logger.info("Building entries...");
 		entries = new LinkedList<>();
-		Map<FullSentenceID, Storage> originalsToRetrieve = new HashMap<>();
-		for (Monster monster : parsed) {
-			logger.fine("Check monster " + monster + "...");
-			for (Attack attack : monster) {
-				logger.finer("Check attack " + attack + "...");
-				for (final Sentence sentence : attack.getSentences()) {
-					logger.finest("Check sentence " + sentence + "...");
-					Storage translationStorage = new Storage() {
+		Map<SentenceID, Storage> originalsToRetrieve = new HashMap<>();
+		for (SentenceID id : parser) {
+			final Sentence sentence = parser.getSentence(id);
+			Storage translationStorage = new Storage() {
 
-						private final Logger logger = Logger
-								.getLogger(Storage.class.getName());
+				private final Logger logger = Logger.getLogger(Storage.class
+						.getName());
 
-						@Override
-						public String read() {
-							return formatter.switchForth(sentence.getMessage());
-						}
-
-						@Override
-						public void write(String content) {
-							content = formatter.switchBack(content);
-							logger.info("Update sentence " + sentence + ": "
-									+ content);
-							sentence.setMessage(content);
-						}
-					};
-					Storage originalStorage = new Storage() {
-
-						private String original = "<not provided>";
-						private final Logger logger = Logger
-								.getLogger(Storage.class.getName());
-
-						@Override
-						public String read() {
-							return formatter.switchForth(original);
-						}
-
-						@Override
-						public void write(String content) {
-							content = formatter.switchBack(content);
-							logger.info("Retrieve original " + sentence + ": "
-									+ content);
-							original = content;
-						}
-					};
-					FullSentenceID sentenceID = new FullSentenceID(monster,
-							attack, sentence);
-					Storage old = originalsToRetrieve.put(sentenceID,
-							originalStorage);
-					if (old == null) {
-						// new ID, expected
-					} else {
-						throw new RuntimeException(
-								"An ID occurs multiple times: " + sentenceID);
-					}
-					MGQEntry entry = new MGQEntry(originalStorage,
-							translationStorage, saver);
-					entries.add(entry);
-					logger.finest("Entry added: " + entry);
+				@Override
+				public String read() {
+					return formatter.switchForth(sentence.getContent());
 				}
+
+				@Override
+				public void write(String content) {
+					content = formatter.switchBack(content);
+					logger.info("Update sentence " + sentence + ": " + content);
+					sentence.setContent(content);
+				}
+			};
+			Storage originalStorage = new Storage() {
+
+				private String original = "<not provided>";
+				private final Logger logger = Logger.getLogger(Storage.class
+						.getName());
+
+				@Override
+				public String read() {
+					return formatter.switchForth(original);
+				}
+
+				@Override
+				public void write(String content) {
+					content = formatter.switchBack(content);
+					logger.info("Retrieve original " + sentence + ": "
+							+ content);
+					original = content;
+				}
+			};
+
+			Storage old = originalsToRetrieve.put(id, originalStorage);
+			if (old == null) {
+				// new ID, expected
+			} else {
+				throw new RuntimeException(
+						"An ID occurs for multiple sentences: " + id);
 			}
+
+			MGQEntry entry = new MGQEntry(originalStorage, translationStorage,
+					saver);
+			entries.add(entry);
+			logger.finest("Entry added: " + entry);
 		}
 		logger.info("Entries built: " + entries.size());
 
@@ -169,7 +160,8 @@ public class MGQMap implements TranslationMap<MGQEntry> {
 		if (originalsToRetrieve.isEmpty()) {
 			// nothing more to retrieve
 		} else {
-			retrieveFromGit(projectDirectory, originalsToRetrieve, filePath);
+			retrieveFromGit(projectDirectory, originalsToRetrieve, filePath,
+					parserGenerator);
 		}
 
 		if (originalsToRetrieve.isEmpty()) {
@@ -179,20 +171,20 @@ public class MGQMap implements TranslationMap<MGQEntry> {
 		}
 	}
 
-	private void retrieveFromCache(File projectDirectory,
-			Map<FullSentenceID, Storage> originalsToRetrieve, String filePath) {
+	private <SentenceID> void retrieveFromCache(File projectDirectory,
+			Map<SentenceID, Storage> originalsToRetrieve, String filePath) {
 		File cacheDirectory = getCacheDirectory();
 		File cacheFile = new File(cacheDirectory, filePath);
 		FileBasedProperties cache = new FileBasedProperties(cacheFile, false);
 
 		logger.info("Retrieving Japanese from cache " + cacheFile + "...");
-		Iterator<Entry<FullSentenceID, Storage>> iterator = originalsToRetrieve
+		Iterator<Entry<SentenceID, Storage>> iterator = originalsToRetrieve
 				.entrySet().iterator();
 		int total = originalsToRetrieve.size();
 		int count = 0;
 		while (iterator.hasNext()) {
-			Entry<FullSentenceID, Storage> entry = iterator.next();
-			FullSentenceID sentenceID = entry.getKey();
+			Entry<SentenceID, Storage> entry = iterator.next();
+			SentenceID sentenceID = entry.getKey();
 			String content = cache.getProperty(sentenceID.toString(), null);
 			if (content == null) {
 				// unknown entry, nothing retrieved
@@ -206,8 +198,9 @@ public class MGQMap implements TranslationMap<MGQEntry> {
 		logger.info("Japanese retrieved: " + count + "/" + total);
 	}
 
-	private void retrieveFromGit(File projectDirectory,
-			Map<FullSentenceID, Storage> originalsToRetrieve, String filePath)
+	private <SentenceID> void retrieveFromGit(File projectDirectory,
+			Map<SentenceID, Storage> originalsToRetrieve, String filePath,
+			Generator<? extends Parser<SentenceID>> parserGenerator)
 			throws IOException {
 		File cacheDirectory = getCacheDirectory();
 		FileBasedProperties cache = new FileBasedProperties(new File(
@@ -249,18 +242,19 @@ public class MGQMap implements TranslationMap<MGQEntry> {
 						loader.copyTo(out);
 
 						logger.info("Parsing file content...");
-						Scripts oldParsed = new Scripts();
+						Parser<SentenceID> oldParsed = parserGenerator
+								.generates();
 						oldParsed.setContent(out.toString());
 
 						logger.info("Browsing file content...");
-						Iterator<Entry<FullSentenceID, Storage>> entryIterator = originalsToRetrieve
+						Iterator<Entry<SentenceID, Storage>> entryIterator = originalsToRetrieve
 								.entrySet().iterator();
 						int total = originalsToRetrieve.size();
 						int count = 0;
 						while (entryIterator.hasNext()) {
-							Entry<FullSentenceID, Storage> entry = entryIterator
+							Entry<SentenceID, Storage> entry = entryIterator
 									.next();
-							FullSentenceID sentenceID = entry.getKey();
+							SentenceID sentenceID = entry.getKey();
 							logger.finest("Searching Japanese for "
 									+ sentenceID + "...");
 							Sentence sentence = oldParsed
@@ -269,9 +263,9 @@ public class MGQMap implements TranslationMap<MGQEntry> {
 								logger.finest("Japanese not found for "
 										+ sentenceID);
 							} else {
-								entry.getValue().write(sentence.getMessage());
+								entry.getValue().write(sentence.getContent());
 								cache.setProperty(sentenceID.toString(),
-										sentence.getMessage());
+										sentence.getContent());
 								entryIterator.remove();
 								logger.finest("Japanese retrieved for "
 										+ sentenceID);
