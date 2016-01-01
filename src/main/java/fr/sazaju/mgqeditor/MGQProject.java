@@ -12,6 +12,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import fr.sazaju.mgqeditor.parser.regex.Actors;
 import fr.sazaju.mgqeditor.parser.regex.Scripts;
 import fr.sazaju.mgqeditor.util.Generator;
 import fr.vergne.translation.TranslationProject;
@@ -38,6 +39,7 @@ public class MGQProject implements TranslationProject<MGQEntry, MapID, MGQMap> {
 	@Override
 	public Iterator<MapID> iterator() {
 		LinkedList<MapID> files = new LinkedList<>();
+		files.add(new MapID(new File(projectDirectory, "Actors.txt")));
 		// TODO consider all the files
 		File scriptDirectory = new File(projectDirectory, "Scripts");
 		for (File file : scriptDirectory.listFiles()) {
@@ -97,6 +99,15 @@ public class MGQProject implements TranslationProject<MGQEntry, MapID, MGQMap> {
 								@Override
 								public Scripts generates() {
 									return new Scripts();
+								}
+							});
+				} else if (id.getFile().getName().equals("Actors.txt")) {
+					map = new MGQMap(id, projectDirectory,
+							new Generator<Actors>() {
+
+								@Override
+								public Actors generates() {
+									return new Actors();
 								}
 							});
 				} else {
