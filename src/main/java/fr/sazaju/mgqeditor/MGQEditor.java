@@ -1,18 +1,10 @@
 package fr.sazaju.mgqeditor;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.nio.charset.Charset;
 import java.util.logging.Level;
-import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import fr.sazaju.mgqeditor.util.LoggerUtil;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-
 import fr.vergne.translation.editor.Editor;
 import fr.vergne.translation.util.ProjectLoader;
 import fr.vergne.translation.util.Setting;
