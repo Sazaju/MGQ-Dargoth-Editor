@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 
+import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
@@ -32,7 +33,6 @@ import fr.sazaju.mgqeditor.parser.Parser.Sentence;
 import fr.sazaju.mgqeditor.util.Generator;
 import fr.sazaju.mgqeditor.util.Saver;
 import fr.sazaju.mgqeditor.util.Storage;
-import fr.vergne.ioutils.FileUtils;
 import fr.vergne.translation.TranslationMap;
 import fr.vergne.translation.util.Switcher;
 import fr.vergne.translation.util.impl.FileBasedProperties;
@@ -64,7 +64,7 @@ public class MGQMap implements TranslationMap<MGQEntry> {
 
 		logger.info("Parsing " + file + "...");
 		final Parser<SentenceID> parser = parserGenerator.generates();
-		parser.setContent(FileUtils.readFileToString(file));
+		parser.setContent(FileUtils.readFileToString(file, "UTF8"));
 		logger.info("File parsed...");
 
 		saver = new Saver() {
