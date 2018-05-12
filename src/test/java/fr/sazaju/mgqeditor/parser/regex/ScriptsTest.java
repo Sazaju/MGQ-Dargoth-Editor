@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
 import fr.sazaju.mgqeditor.parser.regex.Scripts.ArrayEntry;
@@ -17,10 +18,10 @@ import fr.sazaju.mgqeditor.parser.regex.Scripts.AttackIDs;
 import fr.sazaju.mgqeditor.parser.regex.Scripts.Blank;
 import fr.sazaju.mgqeditor.parser.regex.Scripts.Monster;
 import fr.sazaju.mgqeditor.parser.regex.Scripts.ScriptSentence;
-import fr.vergne.ioutils.FileUtils;
 
 public class ScriptsTest {
 
+	private static final String CHARSET = "UTF8";
 	private final File testFolder = new File("src/test/resources");
 
 	@Test
@@ -236,14 +237,14 @@ public class ScriptsTest {
 	public void testScriptFitContents() throws IOException {
 		Scripts scripts = new Scripts();
 		File file = new File(testFolder, "ScriptsVarious.txt");
-		scripts.setContent(FileUtils.readFileToString(file));
+		scripts.setContent(FileUtils.readFileToString(file, CHARSET));
 	}
 
 	@Test
 	public void testScriptProvidesMonsters() throws IOException {
 		Scripts scripts = new Scripts();
 		File file = new File(testFolder, "Scripts.txt");
-		scripts.setContent(FileUtils.readFileToString(file));
+		scripts.setContent(FileUtils.readFileToString(file, CHARSET));
 
 		Iterator<Monster> iterator = scripts.getMonsters().iterator();
 		for (int i = 1; i <= 10; i++) {

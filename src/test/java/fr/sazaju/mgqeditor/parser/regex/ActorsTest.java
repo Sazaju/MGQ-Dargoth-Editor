@@ -5,11 +5,11 @@ import static org.junit.Assert.*;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
 import fr.sazaju.mgqeditor.parser.regex.Actors.Actor;
 import fr.sazaju.mgqeditor.parser.regex.Actors.ActorField;
-import fr.vergne.ioutils.FileUtils;
 
 public class ActorsTest {
 
@@ -96,7 +96,7 @@ public class ActorsTest {
 	public void testActorsParseFullFile() throws IOException {
 		File file = new File(testFolder, "Actors.txt");
 		Actors actors = new Actors();
-		actors.setContent(FileUtils.readFileToString(file));
+		actors.setContent(FileUtils.readFileToString(file, "UTF8"));
 		assertEquals(2, actors.size());
 	}
 
