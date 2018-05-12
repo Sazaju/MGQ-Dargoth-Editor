@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.function.Supplier;
 
 import fr.sazaju.mgqeditor.parser.Parser;
 import fr.vergne.parsing.layer.standard.Formula;
@@ -16,7 +17,7 @@ public class Actors extends Suite implements Parser<Integer> {
 
 	public Actors() {
 		super(new Formula("\uFEFF?+"), new Loop<>(Quantifier.POSSESSIVE,
-				new Actor()));
+				(Supplier<Actor>) Actor::new));
 	}
 
 	@Override
@@ -100,7 +101,8 @@ public class Actors extends Suite implements Parser<Integer> {
 	public static class Actor extends Suite implements Iterable<ActorField> {
 		public Actor() {
 			super(new Formula("Actor "), new Formula("[0-9]++"), new Newline(),
-					new Loop<>(Quantifier.POSSESSIVE, new ActorField()));
+					new Loop<>(Quantifier.POSSESSIVE,
+							(Supplier<ActorField>) ActorField::new));
 		}
 
 		public int getActorID() {

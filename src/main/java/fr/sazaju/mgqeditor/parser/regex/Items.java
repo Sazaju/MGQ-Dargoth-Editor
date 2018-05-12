@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.function.Supplier;
 
 import fr.sazaju.mgqeditor.parser.Parser;
 import fr.sazaju.mgqeditor.parser.regex.Items.ItemID;
@@ -18,7 +19,7 @@ public class Items extends Suite implements Parser<ItemID> {
 
 	public Items() {
 		super(new Formula("\uFEFF?+"), new Loop<>(Quantifier.POSSESSIVE,
-				new Item()));
+				(Supplier<Item>) Item::new));
 	}
 
 	@Override
@@ -102,7 +103,8 @@ public class Items extends Suite implements Parser<ItemID> {
 		public Item() {
 			super(new Formula("(?:Item|Weapon|Armor) "),
 					new Formula("[0-9]++"), new Newline(), new Loop<>(
-							Quantifier.POSSESSIVE, new ItemField()),
+							Quantifier.POSSESSIVE,
+							(Supplier<ItemField>) ItemField::new),
 					new Option<>(new Comment()), new Formula("(?:\r?\n)*+"));
 		}
 

@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
+import java.util.function.Supplier;
 import java.util.logging.Logger;
 
 import fr.sazaju.mgqeditor.parser.Parser;
@@ -24,7 +25,8 @@ public class Scripts extends Suite implements Parser<FullSentenceID> {
 	public Scripts() {
 		super(new Formula("[\\s\\S]*?"), new Formula("[A-Z_]++ = \\{"),
 				new Blank(), new SeparatedLoop<Monster, Blank>(
-						Quantifier.POSSESSIVE, new Monster(), new Blank()),
+						Quantifier.POSSESSIVE,
+						(Supplier<Monster>) Monster::new, Blank::new),
 				new Blank(), new Formula("\\}[\\s\\S]*+"));
 	}
 
@@ -114,7 +116,8 @@ public class Scripts extends Suite implements Parser<FullSentenceID> {
 		public Monster() {
 			super(new Formula("[0-9]++ => \\{ # "), new Formula("[^\n]*+"),
 					new Blank(), new SeparatedLoop<Attack, Blank>(
-							Quantifier.POSSESSIVE, new Attack(), new Blank()),
+							Quantifier.POSSESSIVE,
+							(Supplier<Attack>) Attack::new, Blank::new),
 					new Blank(), new Formula("\\},"));
 		}
 
@@ -157,11 +160,14 @@ public class Scripts extends Suite implements Parser<FullSentenceID> {
 
 	public static class Attack extends Suite implements Iterable<ArrayEntry> {
 		public Attack() {
-			super(new AttackIDs(), new Formula(" => \\{ # ?+"), new Formula(
-					"[^\n]*+"), new Blank(),
+			super(
+					new AttackIDs(),
+					new Formula(" => \\{ # ?+"),
+					new Formula("[^\n]*+"),
+					new Blank(),
 					new SeparatedLoop<ArrayEntry, Blank>(Quantifier.POSSESSIVE,
-							new ArrayEntry(), new Blank()), new Blank(),
-					new Formula("\\},"));
+							(Supplier<ArrayEntry>) ArrayEntry::new, Blank::new),
+					new Blank(), new Formula("\\},"));
 		}
 
 		@SuppressWarnings("unchecked")
@@ -220,10 +226,11 @@ public class Scripts extends Suite implements Parser<FullSentenceID> {
 		public AttackIDs() {
 			super(new Suite(new Formula("\\["),
 					new SeparatedLoop<Formula, Formula>(Quantifier.POSSESSIVE,
-							new Formula("[0-9]++"), new Formula(", ?+", ","),
-							1, Integer.MAX_VALUE), new Formula("\\]")),
-					new Suite(new Formula("[0-9]++"), new Formula("\\.\\."),
-							new Formula("[0-9]++")), new Formula("[0-9]++"));
+							(Supplier<Formula>) () -> new Formula("[0-9]++"),
+							() -> new Formula(", ?+", ","), 1,
+							Integer.MAX_VALUE), new Formula("\\]")), new Suite(
+					new Formula("[0-9]++"), new Formula("\\.\\."), new Formula(
+							"[0-9]++")), new Formula("[0-9]++"));
 		}
 
 		@Override
