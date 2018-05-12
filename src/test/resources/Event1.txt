@@ -1,0 +1,12 @@
+EVENT   12
+ PAGE   1
+  ShowMessageFace("",0,0,2,1)
+  ShowMessage("-Lost Woods-")
+  ShowMessage("Extremely Dangerous")
+  ShowMessage("Novice adventurers DO NOT ENTER")
+  If(0,6,0)
+   ShowMessageFace("sonia_fc2",2,0,2,2)
+   ShowMessage("\\n<Sonya>I was always told never to step foot into this forest. If we don't have any business inside, perhaps we'd better not enter...")
+   0()
+  EndIf()
+  0()
