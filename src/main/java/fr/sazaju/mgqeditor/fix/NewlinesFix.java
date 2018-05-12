@@ -6,7 +6,8 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import fr.vergne.ioutils.FileUtils;
+import org.apache.commons.io.FileUtils;
+
 import fr.vergne.parsing.layer.util.Newline;
 
 public class NewlinesFix {
@@ -24,10 +25,10 @@ public class NewlinesFix {
 				files.addAll(Arrays.asList(file.listFiles()));
 			} else if (file.getName().endsWith(".txt")) {
 				System.out.println(file);
-				String content = FileUtils.readFileToString(file);
+				String content = FileUtils.readFileToString(file, "UTF8");
 				content = mergeSuccessiveLines(content);
 				content = adaptActorNamesFormat(content);
-				FileUtils.write(file, content);
+				FileUtils.write(file, content, "UTF8");
 				System.out.println("OK");
 			} else {
 				// ignore non-text files

@@ -8,17 +8,20 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.FileUtils;
+
 import fr.sazaju.mgqeditor.parser.regex.Actors;
 import fr.sazaju.mgqeditor.parser.regex.Actors.Actor;
-import fr.vergne.ioutils.FileUtils;
 
 public class ActorsNameFix {
+
+	private static final String CHARSET = "UTF8";
 
 	public static void main(String[] args) throws IOException {
 		File projectDirectory = new File("MGQ-Dargoth");
 		File actorFile = new File(projectDirectory, "Actors.txt");
 		Actors actors = new Actors();
-		actors.setContent(FileUtils.readFileToString(actorFile));
+		actors.setContent(FileUtils.readFileToString(actorFile, CHARSET));
 
 		List<File> files = new LinkedList<>();
 		files.add(projectDirectory);
@@ -41,7 +44,7 @@ public class ActorsNameFix {
 	private static void replaceIntegerIDs(File file, Actors actors)
 			throws IOException {
 		System.out.println(file);
-		String content = FileUtils.readFileToString(file);
+		String content = FileUtils.readFileToString(file, CHARSET);
 		Matcher matcher = Pattern.compile("\\\\\\\\n\\[([0-9]+)\\]").matcher(
 				content);
 		StringBuffer buffer = new StringBuffer();
@@ -52,7 +55,7 @@ public class ActorsNameFix {
 			matcher.appendReplacement(buffer, name);
 		}
 		matcher.appendTail(buffer);
-		FileUtils.write(file, buffer.toString());
+		FileUtils.write(file, buffer.toString(), CHARSET);
 		System.out.println("OK");
 	}
 }
