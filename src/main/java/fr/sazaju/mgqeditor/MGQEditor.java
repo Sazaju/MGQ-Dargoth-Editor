@@ -9,6 +9,7 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
+import fr.sazaju.mgqeditor.util.LoggerUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
@@ -21,8 +22,7 @@ import fr.vergne.translation.util.impl.PropertyFileSetting;
 @SuppressWarnings("serial")
 public class MGQEditor extends Editor<MapID, MGQEntry, MGQMap, MGQProject> {
 
-	private static final Logger logger = Logger.getLogger(MGQEditor.class
-			.getName());
+	private static final Logger logger = Logger.getLogger(MGQEditor.class.getName());
 
 	public MGQEditor(Setting<? super String> settings) {
 		super(new ProjectLoader<MGQProject>() {
@@ -35,43 +35,7 @@ public class MGQEditor extends Editor<MapID, MGQEntry, MGQMap, MGQProject> {
 	}
 
 	public static void main(String[] args) {
-		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		PrintStream printer = new PrintStream(stream);
-		printer.println(".level = INFO");
-		printer.println("java.level = OFF");
-		printer.println("javax.level = OFF");
-		printer.println("sun.level = OFF");
-
-		printer.println("handlers = java.util.logging.FileHandler, java.util.logging.ConsoleHandler");
-		printer.println("formatters = java.util.logging.SimpleFormatter");
-		printer.println("java.util.logging.SimpleFormatter.format = %1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS.%1$tL %4$s: %5$s [%2$s]%6$s%n");
-
-		printer.println("java.util.logging.FileHandler.pattern = vh-editor.%u.%g.log");
-		printer.println("java.util.logging.FileHandler.level = ALL");
-		printer.println("java.util.logging.FileHandler.formatter = java.util.logging.SimpleFormatter");
-
-		printer.println("java.util.logging.ConsoleHandler.level = ALL");
-
-		File file = new File("logging.properties");
-		if (file.exists()) {
-			try {
-				printer.println(FileUtils.readFileToString(file));
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
-		} else {
-			// use only default configuration
-		}
-		printer.close();
-
-		LogManager manager = LogManager.getLogManager();
-		try {
-			manager.readConfiguration(IOUtils.toInputStream(new String(stream
-					.toByteArray(), Charset.forName("UTF-8"))));
-		} catch (SecurityException | IOException e) {
-			throw new RuntimeException(e);
-		}
-
+		LoggerUtil.LoadLoggingProperties();
 		new Thread(new Runnable() {
 			public void run() {
 				try {
